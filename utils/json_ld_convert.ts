@@ -1,5 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
 import schema from "../data/schema.json" assert { "type": "json" };
+import { isString } from "../deps.ts";
 
 type Schema = typeof schema;
 
@@ -40,16 +41,18 @@ export function constructClass(
 
 function makeSummary(node: graph[number]): Summary {
   return {
-    name: node["rdfs:label"],
-    description: node["rdfs:comment"],
+    name: resolveValueDirective(node["rdfs:label"]),
+    description: resolveValueDirective(node["rdfs:comment"]),
   };
 }
 
-interface ClassNode {
-  "@id": string;
-  "@type": string;
-  "rdfs:comment": string;
-  "rdfs:label": string;
+function resolveValueDirective(
+  value: string | {
+    "@language": string;
+    "@value": string;
+  },
+): string {
+  return isString(value) ? value : value["@value"];
 }
 
 function collectSubClass(id: string, json: Schema): typeof schema["@graph"] {
