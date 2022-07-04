@@ -1,25 +1,24 @@
 /** @jsx h */
 import { Fragment, h } from "preact";
-import { tw } from "@twind";
+import { apply, tw } from "@twind";
 import Header from "../components/Header.tsx";
 import Footer from "../components/Footer.tsx";
+import Hero from "../components/Hero.tsx";
+
+const container = apply`container mx-auto`;
 
 export default function Page(): h.JSX.Element {
-  const container = tw`container mx-auto`;
-
   return (
     <Fragment>
-      <Header innerClass={container} />
+      <Header
+        class={tw
+          `sticky top-0 backdrop-blur backdrop-filter border-b px-4 py-2`}
+        innerClass={tw(container)}
+      />
 
-      <section class={tw`bg-gray-50 border-b`}>
-        <header class={tw`${container} text-center`}>
-          <h1 class={tw`text-5xl p-8`}>Webkit</h1>
+      <Hero class={tw`bg-gray-50 border-b`} />
 
-          <p class={tw`text-xl p-8`}>A utility toolkit on Web</p>
-        </header>
-      </section>
-
-      <main class={tw`${container} my-10`}>
+      <main class={tw`${container} my-10 p-5 sm:p-0`}>
         <h1 class={tw`text-2xl my-4`}>Tools</h1>
 
         <nav>

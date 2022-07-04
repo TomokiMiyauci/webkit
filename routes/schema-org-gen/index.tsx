@@ -23,21 +23,22 @@ export default function Home(
 ): h.JSX.Element {
   return (
     <Fragment>
-      <Header />
+      <Header
+        class={tw
+          `sticky top-0 backdrop-blur backdrop-filter border-b px-4 py-2`}
+      />
 
       <section
         class={tw`grid h-full`}
-        style={{
-          gridTemplateColumns: "260px minmax(900px,1fr)",
-        }}
       >
         <NavigationDrawer
-          class={tw`border-r sticky h-full top-0 bg-gray-50 px-4 py-2 shadow`}
+          class={tw
+            `border-r sticky h-full top-0 bg-gray-50 px-4 py-2 shadow hidden sm:hidden`}
         />
 
         <div class={tw`p-8`}>
           <Main
-            class={tw`container mx-auto grid grid-cols-2 gap-8`}
+            class={tw`container mx-auto grid grid-cols-1 sm:grid-cols-2 gap-8`}
             classes={data.classes}
           />
 

@@ -52,7 +52,7 @@ export default function Main({ classes, ...props }: Props) {
             e.preventDefault();
           }}
         >
-          <ul class={tw`space-y-4 grid grid-cols-2 gap-4`}>
+          <ul class={tw`space-y-4 sm:grid-cols-2 gap-4`}>
             <li class={tw(card)}>
               <div class={tw`flex justify-between`}>
                 <label for="form-0-type" class={tw`text-2xl`}>

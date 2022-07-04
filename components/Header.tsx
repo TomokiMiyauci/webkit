@@ -4,15 +4,15 @@ import { tw } from "@twind";
 
 export type Props = {
   innerClass: string;
-};
+} & h.JSX.IntrinsicElements["header"];
 
 export default function Header(
-  { innerClass }: Readonly<Partial<Props>>,
+  { innerClass, ...props }: Readonly<Partial<Props>>,
 ): h.JSX.Element {
   return (
-    <header class={tw`border-b px-4 py-2`}>
+    <header {...props}>
       <div class={innerClass}>
-        <a href="/" class={tw`text-3xl`}>Webkit</a>
+        <a href="/" class={tw`text-2xl`}>Webkit</a>
       </div>
     </header>
   );
