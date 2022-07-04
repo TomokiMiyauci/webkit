@@ -1,7 +1,6 @@
 import { Handlers } from "$fresh/server.ts";
+import schema from "../../data/schema.json" assert { "type": "json" };
 import { isString } from "../../deps.ts";
-
-const schema = await import("../../data/schema.json");
 
 export const handler: Handlers = {
   GET() {
