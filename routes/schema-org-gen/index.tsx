@@ -11,10 +11,19 @@ import { tw } from "@twind";
 
 export const handler: Handlers<ClassProps> = {
   async GET(req, ctx) {
-    const res = await fetch(new URL("api/schema", req.url));
-    const json = await res.json() as Class[];
+    try {
+      const res = await fetch(new URL("api/schema", req.url));
+      const json = await res.json() as Class[];
 
-    return ctx.render({ classes: json });
+      return ctx.render({ classes: json });
+    } catch (e) {
+      const msg = e instanceof Error
+        ? e.message
+        : "Unknown error has occurred.";
+      return new Response(msg, {
+        status: 500,
+      });
+    }
   },
 };
 
