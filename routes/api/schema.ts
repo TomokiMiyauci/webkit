@@ -11,6 +11,10 @@ export const handler: Handlers = {
       return isString(type) && type === "rdfs:Class";
     }).map(({ "rdfs:label": name }) => ({ name })).slice(0, 4);
 
-    return new Response(JSON.stringify(classes));
+    return new Response(JSON.stringify(classes), {
+      "headers": {
+        "Content-Type": "application/json;charset=UTF-8",
+      },
+    });
   },
 };
