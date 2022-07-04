@@ -5,23 +5,23 @@ import Header from "../../components/Header.tsx";
 import Main from "../../islands/Main.tsx";
 import NavigationDrawer from "../../components/NavigationDrawer.tsx";
 import Footer from "../../components/Footer.tsx";
-import { isString } from "../../deps.ts";
-import schema from "../../data/schema.json" assert { "type": "json" };
 
 import { Class, ClassProps } from "../../types/data.ts";
 import { tw } from "@twind";
 
 export const handler: Handlers<ClassProps> = {
-  GET(req, ctx) {
+  async GET(req, ctx) {
     try {
-      const graph = schema["@graph"];
+      const url = new URL("api/schema", req.url);
+      const res = await fetch(url);
 
-      const classes = graph.filter((g) => {
-        const type = g["@type"];
-        return isString(type) && type === "rdfs:Class";
-      }).map(({ "rdfs:label": name }) => ({ name })).slice(0, 4);
+      if (res.ok) {
+        const json = await res.json() as Class[];
 
-      return ctx.render({ classes });
+        return ctx.render({ classes: json });
+      } else {
+        return res;
+      }
     } catch (e) {
       const msg = e instanceof Error
         ? e.message
