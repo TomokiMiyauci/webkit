@@ -12,10 +12,16 @@ import { tw } from "@twind";
 export const handler: Handlers<ClassProps> = {
   async GET(req, ctx) {
     try {
-      const res = await fetch(new URL("api/schema", req.url));
-      const json = await res.json() as Class[];
+      const url = new URL("api/schema", req.url);
+      const res = await fetch(url);
 
-      return ctx.render({ classes: json });
+      if (res.ok) {
+        const json = await res.json() as Class[];
+
+        return ctx.render({ classes: json });
+      } else {
+        return res;
+      }
     } catch (e) {
       const msg = e instanceof Error
         ? e.message
