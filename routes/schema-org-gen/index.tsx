@@ -13,6 +13,7 @@ export const handler: Handlers<ClassProps> = {
   async GET(req, ctx) {
     try {
       const url = new URL("api/schema", req.url);
+      console.log(url);
       const res = await fetch(url);
 
       if (res.ok) {
