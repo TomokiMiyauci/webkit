@@ -1,0 +1,11 @@
+export const snapshot = {};
+
+snapshot[`constructClass > should return undefined when it has not class 1`] = `
+{
+  "@id": "schema:Intangible",
+  comment: "A utility class that serves as the umbrella for a number of 'intangible' things such as quantities, structured values, etc.",
+  label: "Intangible",
+  properties: [
+  ],
+}
+`;
