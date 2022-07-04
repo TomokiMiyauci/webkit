@@ -1,5 +1,5 @@
 import { Handlers } from "$fresh/server.ts";
-import schema from "../../../aa.json" assert { "type": "json" };
+import schema from "../../../data/schema.json" assert { "type": "json" };
 import { constructClass } from "../../../utils/json_ld_convert.ts";
 
 export const handler: Handlers = {
