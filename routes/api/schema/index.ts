@@ -1,6 +1,6 @@
 import { Handlers } from "$fresh/server.ts";
-import schema from "../../data/schema.json" assert { "type": "json" };
-import { isString } from "../../deps.ts";
+import schema from "../../../data/schema.json" assert { "type": "json" };
+import { isString } from "../../../deps.ts";
 
 export const handler: Handlers = {
   GET() {
@@ -16,8 +16,6 @@ export const handler: Handlers = {
         "Content-Type": "application/json;charset=UTF-8",
       },
     });
-
-    console.log(res);
 
     return res;
   },
