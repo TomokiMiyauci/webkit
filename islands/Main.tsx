@@ -11,10 +11,11 @@ import {
   SchemaOrg,
 } from "../schemas/generated/graphql.ts";
 import { Result } from "../schemas/types.ts";
+import gql from "../utils/gql.ts";
 
 export type Props = SchemaOrg & h.JSX.IntrinsicElements["main"];
 
-const query = `query Query($id: String) {
+const query = gql`query Query($id: String) {
   schemaOrg {
     class(id: $id) {
       name

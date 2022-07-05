@@ -9,8 +9,9 @@ import { Result } from "../../schemas/types.ts";
 import { Query } from "../../schemas/generated/graphql.ts";
 import { tw } from "@twind";
 import { handler as graphqlHandler } from "../graphql.ts";
+import gql from "../../utils/gql.ts";
 
-const query = `query {
+const query = gql`query {
   schemaOrg {
     nodes(type: CLASS) {
       id
