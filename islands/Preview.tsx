@@ -2,8 +2,7 @@
 import { h, JSX } from "preact";
 import { useCallback, useMemo } from "preact/hooks";
 import { tw } from "@twind";
-import { filterValues } from "../deps.ts";
-import { jsonObject } from "../types/data.ts";
+import { filterValues, jsonObject } from "../deps.ts";
 
 export type Props = {
   data: jsonObject;

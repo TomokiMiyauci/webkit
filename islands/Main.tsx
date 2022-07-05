@@ -3,7 +3,6 @@ import { h } from "preact";
 import { useEffect, useMemo, useState } from "preact/hooks";
 import { apply, tw } from "@twind";
 import Preview from "./Preview.tsx";
-import { Data } from "../types/data.ts";
 import Required from "../components/Required.tsx";
 import {
   Class,
@@ -37,7 +36,7 @@ const card = apply
   `hover:bg-gray-100 hover:shadow p-3 rounded-md transition duration-300`;
 
 export default function Main({ nodes, ...props }: Readonly<Props>) {
-  const [data, setData] = useState<Data>({});
+  const [data, setData] = useState<Record<string, string>>({});
   const [cls, setClass] = useState<Maybe<Class>>();
 
   const [type, setType] = useState<string>("");
