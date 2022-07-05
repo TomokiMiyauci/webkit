@@ -25,12 +25,14 @@ export const handler: Handlers<Result<Query>["data"]> = {
     try {
       const graphqlUrl = new URL("/graphql", req.url);
       graphqlUrl.searchParams.set("query", query);
+      console.log(graphqlUrl);
 
       const res = await fetch(graphqlUrl, {
         headers: {
           Accept: MEDIA_TYPE,
         },
       });
+      console.log(res);
 
       if (res.ok) {
         const { data, errors } = await res.json() as Result<Query>;
