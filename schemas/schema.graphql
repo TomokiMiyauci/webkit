@@ -1,0 +1,36 @@
+type Query {
+  schemaOrg: SchemaOrg!
+}
+
+type SchemaOrg {
+  nodes(type: Type = ALL): [Property!]!
+  class(id: String): Class
+  nodeCount: Int!
+}
+
+interface Node {
+  id: String!
+  type: [String!]!
+  name: String!
+  description: String!
+}
+
+type Class implements Node {
+  id: String!
+  type: [String!]!
+  name: String!
+  description: String!
+  properties: [Property!]!
+}
+
+type Property implements Node {
+  id: String!
+  type: [String!]!
+  name: String!
+  description: String!
+}
+
+enum Type {
+  CLASS
+  ALL
+}
