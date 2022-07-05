@@ -2,7 +2,7 @@
 // This file SHOULD be checked into source version control.
 // This file is automatically updated during development when running `dev.ts`.
 
-import * as $0 from "./routes/graph/index.tsx";
+import * as $0 from "./routes/__/index.tsx";
 import * as $1 from "./routes/graphql.ts";
 import * as $2 from "./routes/index.tsx";
 import * as $3 from "./routes/schema-org-gen/index.tsx";
@@ -11,7 +11,7 @@ import * as $$1 from "./islands/Preview.tsx";
 
 const manifest = {
   routes: {
-    "./routes/graph/index.tsx": $0,
+    "./routes/__/index.tsx": $0,
     "./routes/graphql.ts": $1,
     "./routes/index.tsx": $2,
     "./routes/schema-org-gen/index.tsx": $3,
