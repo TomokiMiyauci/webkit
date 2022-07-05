@@ -35,7 +35,8 @@ export const handler: Handlers = {
       });
       const res = new Response(JSON.stringify(result), {
         headers: {
-          "Content-Type": "application/json",
+          "content-type": "application/json",
+          "cache-control": "max-age=604800",
         },
       });
       return res;
