@@ -3,12 +3,31 @@ import { h } from "preact";
 import { useEffect, useMemo, useState } from "preact/hooks";
 import { apply, tw } from "@twind";
 import Preview from "./Preview.tsx";
-import { ClassProps, Data } from "../types/data.ts";
+import { Data } from "../types/data.ts";
 import Required from "../components/Required.tsx";
-import { fetchClassProperties } from "../utils/json_ld_client.ts";
-import { Summary } from "../utils/json_ld_convert.ts";
+import {
+  Class,
+  Maybe,
+  Query,
+  SchemaOrg,
+} from "../schemas/generated/graphql.ts";
+import { Result } from "../schemas/types.ts";
 
-export type Props = ClassProps & h.JSX.IntrinsicElements["main"];
+export type Props = SchemaOrg & h.JSX.IntrinsicElements["main"];
+
+const query = `query Query($id: String) {
+  schemaOrg {
+    class(id: $id) {
+      name
+      description
+      properties {
+        name
+        description
+      }
+    }
+  }
+}
+`;
 
 const base = {
   "@context": "https://schema.org",
@@ -17,15 +36,12 @@ const base = {
 const card = apply
   `hover:bg-gray-100 hover:shadow p-3 rounded-md transition duration-300`;
 
-export default function Main({ classes, ...props }: Props) {
+export default function Main({ nodes, ...props }: Readonly<Props>) {
   const [data, setData] = useState<Data>({});
-  const [properties, setProperties] = useState<Summary[]>([]);
+  const [cls, setClass] = useState<Maybe<Class>>();
 
   const [type, setType] = useState<string>("");
-  const classNames = useMemo<string[]>(
-    () => classes.map(({ name }) => name),
-    [],
-  );
+
   const dataSet = useMemo(() => ({ ...base, "@type": type, ...data }), [
     base,
     type,
@@ -35,10 +51,13 @@ export default function Main({ classes, ...props }: Props) {
   useEffect(() => {
     if (!type) return;
 
-    fetchClassProperties({ type }, {
-      baseURL: window.location.href,
-    }).then((result) => {
-      setProperties(result.properties);
+    const url = new URL("/graphql", location.href);
+    url.searchParams.set("query", query);
+    url.searchParams.set("variables", JSON.stringify({ id: type }));
+
+    fetch(url).then(async (res) => {
+      const result = await res.json() as Result<Query>;
+      setClass(result.data.schemaOrg.class);
     });
   }, [type]);
 
@@ -76,13 +95,13 @@ export default function Main({ classes, ...props }: Props) {
                 <option value="" selected disabled>
                   Select type
                 </option>
-                {classNames.map((cls) => {
-                  return <option key={cls} value={cls}>{cls}</option>;
+                {nodes.map(({ id, name }) => {
+                  return <option key={id} value={id}>{name}</option>;
                 })}
               </select>
             </li>
 
-            {properties.map(({ name, description }) => {
+            {cls?.properties.map(({ name, description }) => {
               const id = useMemo<string>(
                 () => `form-0-${name.toLowerCase()}`,
                 [name],
@@ -97,7 +116,12 @@ export default function Main({ classes, ...props }: Props) {
                     {name}
                   </label>
 
-                  <p class={tw`mb-3 flex-1`}>{description}</p>
+                  <p
+                    dangerouslySetInnerHTML={{
+                      __html: description,
+                    }}
+                    class={tw`mb-3 flex-1`}
+                  />
 
                   <input
                     class={tw

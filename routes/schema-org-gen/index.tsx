@@ -5,20 +5,44 @@ import Header from "../../components/Header.tsx";
 import Main from "../../islands/Main.tsx";
 import NavigationDrawer from "../../components/NavigationDrawer.tsx";
 import Footer from "../../components/Footer.tsx";
-
-import { Class, ClassProps } from "../../types/data.ts";
+import { Result } from "../../schemas/types.ts";
+import { Query } from "../../schemas/generated/graphql.ts";
 import { tw } from "@twind";
 
-export const handler: Handlers<ClassProps> = {
+const query = `query {
+  schemaOrg {
+    nodes(type: CLASS) {
+      id
+      name
+    }
+  }
+}`;
+
+const MEDIA_TYPE = "application/json";
+
+export const handler: Handlers<Result<Query>["data"]> = {
   async GET(req, ctx) {
     try {
-      const url = new URL("api/schema", req.url);
-      const res = await fetch(url);
+      const graphqlUrl = new URL("/graphql", req.url);
+      graphqlUrl.searchParams.set("query", query);
+
+      const res = await fetch(graphqlUrl, {
+        headers: {
+          Accept: MEDIA_TYPE,
+        },
+      });
 
       if (res.ok) {
-        const json = await res.json() as Class[];
+        const { data, errors } = await res.json() as Result<Query>;
+        if (errors) {
+          return new Response(JSON.stringify(errors), {
+            headers: {
+              "Content-Type": MEDIA_TYPE,
+            },
+          });
+        }
 
-        return ctx.render({ classes: json });
+        return ctx.render(data);
       } else {
         return res;
       }
@@ -34,7 +58,7 @@ export const handler: Handlers<ClassProps> = {
 };
 
 export default function Home(
-  { data }: Readonly<PageProps<ClassProps>>,
+  { data }: Readonly<PageProps<Result<Query>["data"]>>,
 ): h.JSX.Element {
   return (
     <Fragment>
@@ -53,8 +77,8 @@ export default function Home(
 
         <div class={tw`p-8`}>
           <Main
+            nodes={data.schemaOrg.nodes}
             class={tw`container mx-auto grid grid-cols-1 sm:grid-cols-2 gap-8`}
-            classes={data.classes}
           />
 
           <Footer class={tw`container mx-auto mt-20`} />
