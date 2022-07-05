@@ -8,6 +8,7 @@ import Footer from "../../components/Footer.tsx";
 import { Result } from "../../schemas/types.ts";
 import { Query } from "../../schemas/generated/graphql.ts";
 import { tw } from "@twind";
+import { handler as graphqlHandler } from "../graphql.ts";
 
 const query = `query {
   schemaOrg {
@@ -25,14 +26,8 @@ export const handler: Handlers<Result<Query>["data"]> = {
     try {
       const graphqlUrl = new URL("/graphql", req.url);
       graphqlUrl.searchParams.set("query", query);
-      console.log(graphqlUrl);
-
-      const res = await fetch(graphqlUrl, {
-        headers: {
-          Accept: MEDIA_TYPE,
-        },
-      });
-      console.log(res);
+      const request = new Request(graphqlUrl, req.clone());
+      const res = await graphqlHandler["GET"]!(request, ctx);
 
       if (res.ok) {
         const { data, errors } = await res.json() as Result<Query>;
