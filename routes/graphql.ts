@@ -7,12 +7,13 @@ import {
 } from "https://deno.land/std@0.146.0/path/mod.ts";
 import { buildSchema, graphql } from "graphql/mod.ts";
 
+const fileUrl = fromFileUrl(import.meta.url);
+const filePath = join(dirname(fileUrl), "..", "schemas", "schema.graphql");
+const schemaData = await Deno.readTextFile(filePath);
+const schema = buildSchema(schemaData);
+
 export const handler: Handlers = {
   async GET(req) {
-    const fileUrl = fromFileUrl(import.meta.url);
-    const filePath = join(dirname(fileUrl), "..", "schemas", "schema.graphql");
-    const schemaData = await Deno.readTextFile(filePath);
-    const schema = buildSchema(schemaData);
     const url = new URL(req.url);
     const source = url.searchParams.get("query");
     const variables = url.searchParams.get("variables");
@@ -25,13 +26,28 @@ export const handler: Handlers = {
       return res;
     }
 
-    const result = await graphql({ schema, source, rootValue, variableValues });
-    const res = new Response(JSON.stringify(result), {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    try {
+      const result = await graphql({
+        schema,
+        source,
+        rootValue,
+        variableValues,
+      });
+      const res = new Response(JSON.stringify(result), {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      return res;
+    } catch (e) {
+      const msg = e instanceof Error
+        ? e.message
+        : "Unknown error has occurred.";
 
-    return res;
+      const res = new Response(msg, {
+        status: 500,
+      });
+      return res;
+    }
   },
 };
