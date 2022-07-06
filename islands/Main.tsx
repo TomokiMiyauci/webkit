@@ -11,7 +11,7 @@ import {
   SchemaOrg,
 } from "../schemas/generated/graphql.ts";
 import { Result } from "../schemas/types.ts";
-import gql from "../utils/gql.ts";
+import { gql } from "../utils/gqls.ts";
 
 export type Props = SchemaOrg & h.JSX.IntrinsicElements["main"];
 
