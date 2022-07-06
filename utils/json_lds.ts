@@ -84,6 +84,7 @@ export function formatNode(rawNode: RawNode, schemaOrg: SchemaOrg): Node {
   const DOC_BASE_URL = "https://schema.org";
   renderer.link = (href, _, text) => {
     href = href ?? "";
+    console.log(href);
     console.log(isAbsolute(href), href);
     href = isAbsolute(href) ? new URL(href, DOC_BASE_URL).toString() : href;
     return `<a target="_blank" href="${href}">${text}</a>`;
@@ -92,6 +93,30 @@ export function formatNode(rawNode: RawNode, schemaOrg: SchemaOrg): Node {
     breaks: true,
     baseUrl: "https://schema.org",
     renderer,
+    tokenizer: {
+      link(src) {
+        const match = src.match(/^\[\[(.+?)\]\]/);
+
+        if (match) {
+          return {
+            type: "link",
+            raw: match[0],
+            text: match[1],
+            href: `/${match[1]}`,
+            title: "",
+            tokens: [
+              {
+                type: "text",
+                raw: match[1],
+                text: match[1],
+              },
+            ],
+          };
+        }
+
+        return false;
+      },
+    },
   });
   const description = marked(
     resolveLanguage(rawNode["rdfs:comment"]).replaceAll("\n\n", "\n"),
