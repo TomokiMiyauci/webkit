@@ -1,10 +1,15 @@
 import nodes from "./nodes/resolver.ts";
-import schemaOrg from "../../data/schema.json" assert { type: "json" };
+import schemaOrg from "@/data/schema.json" assert { type: "json" };
 import {
   constructProperties,
   formatNode,
-  resolveRelativeIRI,
-} from "../../utils/json_lds.ts";
+  resolveAbbreviatedValue,
+  resolveIRI,
+} from "@/utils/json_lds.ts";
+import {
+  RequireFields,
+  SchemaOrgClassArgs,
+} from "@/schemas/generated/graphql.ts";
 
 const nodeCount = (): number => {
   const graph = schemaOrg["@graph"];
@@ -16,16 +21,31 @@ const nodeCount = (): number => {
   return length;
 };
 
-const cls = ({ id }: { id: string }) => {
+const cls = (
+  { id, absoluteIRI }: RequireFields<
+    SchemaOrgClassArgs,
+    "absoluteIRI" | "id"
+  >,
+) => {
   const graph = schemaOrg["@graph"];
-  const node = graph.find((node) =>
-    resolveRelativeIRI(node["@id"], schemaOrg) === id
-  );
+  const contexts = schemaOrg["@context"];
+
+  const node = graph.find((node) => {
+    const $id = resolveAbbreviatedValue(node["@id"], absoluteIRI, contexts);
+    return $id === id;
+  });
   if (!node) return;
 
   const properties = constructProperties(node["@id"], schemaOrg);
 
-  return { ...formatNode(node, schemaOrg), properties };
+  return {
+    ...resolveIRI({
+      node: formatNode(node),
+      contexts,
+      isAbsolute: absoluteIRI,
+    }),
+    properties,
+  };
 };
 
 const resolver = () => {

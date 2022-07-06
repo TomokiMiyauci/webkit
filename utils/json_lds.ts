@@ -3,6 +3,7 @@ import { filterTruthy, isString, wrap } from "../deps.ts";
 import { Property } from "../schemas/generated/graphql.ts";
 import { marked } from "https://esm.sh/marked";
 import { extension } from "./markdowns.ts";
+import { mapValues } from "std/collections/map_values.ts";
 
 marked.use(extension);
 
@@ -16,27 +17,51 @@ export function isAbbreviated(value: string): value is `${string}:${string}` {
   return reAbbreviatedFormat.test(value);
 }
 
-export function resolveRelativeIRI(
+export function resolveAbbreviatedValue(
   value: string,
-  schemaOrg: SchemaOrg,
+  isAbsolute: boolean,
+  contexts: Record<string, string>,
 ): string {
   const result = isAbbreviated(value)
     ? (() => {
-      const contexts = schemaOrg["@context"];
       const [base, pathname] = value.split(":");
 
       if (base in contexts) {
-        type Base = keyof typeof contexts;
-        const baseUrl = contexts[base as Base];
-        const url = new URL(pathname, baseUrl);
+        if (isAbsolute) {
+          type Base = keyof typeof contexts;
+          const baseUrl = contexts[base as Base];
+          const url = new URL(pathname, baseUrl);
 
-        return url.toString();
+          return url.toString();
+        }
+
+        return pathname;
       }
       return "Unknown";
     })()
     : value;
 
   return result;
+}
+
+type Params = {
+  node: Node;
+  contexts: Record<string, string>;
+  isAbsolute: boolean;
+};
+
+export function resolveIRI(
+  { node, contexts, isAbsolute }: Readonly<Params>,
+): Node {
+  const newNode = mapValues(node, (value) => {
+    const result = isString(value)
+      ? resolveAbbreviatedValue(value, isAbsolute, contexts)
+      : value.map((v) => resolveAbbreviatedValue(v, isAbsolute, contexts));
+
+    return result;
+  }) as Node;
+
+  return newNode;
 }
 
 export interface Language {
@@ -54,32 +79,14 @@ export function resolveLanguage(
   return value["@value"];
 }
 
-function resolveId(
-  rawNode: RawNode,
-  schemaOrg: SchemaOrg,
-): string {
-  const _id = rawNode["@id"];
-
-  const id = resolveRelativeIRI(_id, schemaOrg);
-  return id;
-}
-
-interface Node {
+type Node = {
   id: string;
   type: string[];
   name: string;
   description: string;
-}
+};
 
-export function resolveType(rawNode: RawNode, schemaOrg: SchemaOrg): string[] {
-  return wrap(rawNode["@type"]).map((type) => {
-    return resolveRelativeIRI(type, schemaOrg);
-  });
-}
-
-export function formatNode(rawNode: RawNode, schemaOrg: SchemaOrg): Node {
-  const id = resolveId(rawNode, schemaOrg);
-  const type = resolveType(rawNode, schemaOrg);
+export function formatNode(rawNode: RawNode): Node {
   const name = resolveLanguage(rawNode["rdfs:label"]);
 
   const description = marked(
@@ -87,8 +94,8 @@ export function formatNode(rawNode: RawNode, schemaOrg: SchemaOrg): Node {
   );
 
   return {
-    id,
-    type,
+    id: rawNode["@id"],
+    type: wrap(rawNode["@type"]),
     name,
     description,
   };
@@ -109,7 +116,7 @@ export function constructProperties(
     return collectProperties(node["@id"], json);
   }).flat();
 
-  const properties = propertyNodes.map((node) => formatNode(node, json));
+  const properties = propertyNodes.map(formatNode);
 
   return properties;
 }

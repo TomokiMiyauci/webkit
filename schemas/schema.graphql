@@ -3,8 +3,8 @@ type Query {
 }
 
 type SchemaOrg {
-  nodes(type: Type = ALL): [Property!]!
-  class(id: String): Class
+  nodes(type: Type = ALL, absoluteIRI: Boolean = false): [Property!]!
+  class(id: String, absoluteIRI: Boolean = false): Class
   nodeCount: Int!
 }
 
