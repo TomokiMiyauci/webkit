@@ -2,6 +2,7 @@ import schemaOrg from "../data/schema.json" assert { type: "json" };
 import { filterTruthy, isString, wrap } from "../deps.ts";
 import { Property } from "../schemas/generated/graphql.ts";
 import { marked } from "https://esm.sh/marked";
+import { isAbsolute } from "std/path/mod.ts";
 
 export type SchemaOrg = typeof schemaOrg;
 
@@ -78,7 +79,23 @@ export function formatNode(rawNode: RawNode, schemaOrg: SchemaOrg): Node {
   const id = resolveId(rawNode, schemaOrg);
   const type = resolveType(rawNode, schemaOrg);
   const name = resolveLanguage(rawNode["rdfs:label"]);
-  const description = marked(resolveLanguage(rawNode["rdfs:comment"]));
+
+  const renderer = new marked.Renderer();
+  const DOC_BASE_URL = "https://schema.org";
+  renderer.link = (href, _, text) => {
+    href = href ?? "";
+    console.log(isAbsolute(href), href);
+    href = isAbsolute(href) ? new URL(href, DOC_BASE_URL).toString() : href;
+    return `<a target="_blank" href="${href}">${text}</a>`;
+  };
+  marked.use({
+    breaks: true,
+    baseUrl: "https://schema.org",
+    renderer,
+  });
+  const description = marked(
+    resolveLanguage(rawNode["rdfs:comment"]).replaceAll("\n\n", "\n"),
+  );
 
   return {
     id,
