@@ -56,7 +56,7 @@ export const handler: Handlers<Result<Query>["data"]> = {
 };
 
 export default function Home(
-  { data }: Readonly<PageProps<Result<Query>["data"]>>,
+  { data, url }: Readonly<PageProps<Result<Query>["data"]>>,
 ): h.JSX.Element {
   return (
     <Fragment>
@@ -76,6 +76,7 @@ export default function Home(
         <div class={tw`p-8`}>
           <Main
             nodes={data.schemaOrg.nodes}
+            url={url.toString()}
             class={tw`container mx-auto grid grid-cols-1 sm:grid-cols-2 gap-8`}
           />
 

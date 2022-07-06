@@ -1,6 +1,6 @@
 /** @jsx h */
 import { h } from "preact";
-import { useEffect, useMemo, useState } from "preact/hooks";
+import { useCallback, useEffect, useMemo, useState } from "preact/hooks";
 import { apply, tw } from "@twind";
 import Preview from "./Preview.tsx";
 import Required from "../components/Required.tsx";
@@ -13,7 +13,10 @@ import {
 import { Result } from "../schemas/types.ts";
 import { gql } from "../utils/gqls.ts";
 
-export type Props = SchemaOrg & h.JSX.IntrinsicElements["main"];
+export type Props =
+  & Pick<SchemaOrg, "nodes">
+  & { url: string }
+  & h.JSX.IntrinsicElements["main"];
 
 const query = gql`query Query($id: String) {
   schemaOrg {
@@ -36,11 +39,53 @@ const base = {
 const card = apply
   `hover:bg-gray-100 hover:shadow p-3 rounded-md transition duration-300`;
 
-export default function Main({ nodes, ...props }: Readonly<Props>) {
-  const [data, setData] = useState<Record<string, string>>({});
+export default function Main({ nodes, url, ...props }: Readonly<Props>) {
+  const _url = useMemo<URL>(() => new URL(url), [url]);
+
+  const [properties, setProperties] = useState<Record<string, string>>(() => {
+    const record: Record<string, string> = {};
+    _url.searchParams.forEach((value, key) => {
+      if (key !== "@type") {
+        record[key] = value;
+      }
+    });
+
+    return record;
+  });
   const [cls, setClass] = useState<Maybe<Class>>();
 
-  const [type, setType] = useState<string>("");
+  const [type, setType] = useState<string>(() => {
+    const type = _url.searchParams.get("@type");
+
+    return type ?? "";
+  });
+  const data = useMemo<Record<string, string>>(
+    () => ({ ...properties, ["@type"]: type }),
+    [properties, type],
+  );
+
+  const handleInput = useCallback<
+    (value: string) => h.JSX.GenericEventHandler<HTMLInputElement>
+  >((name) =>
+    (ev) => {
+      setProperties((data) => ({
+        ...data,
+        [name]: ev.currentTarget.value,
+      }));
+    }, []);
+
+  useEffect(() => {
+    const entries = Object.entries(data);
+    if (!entries.length) return;
+
+    const url = new URL(location.href);
+
+    entries.forEach(([key, value]) => {
+      url.searchParams.set(key, value);
+    });
+
+    window.history.replaceState(null, "", url);
+  }, [data]);
 
   const dataSet = useMemo(() => ({ ...base, "@type": type, ...data }), [
     base,
@@ -56,8 +101,12 @@ export default function Main({ nodes, ...props }: Readonly<Props>) {
     url.searchParams.set("variables", JSON.stringify({ id: type }));
 
     fetch(url).then(async (res) => {
-      const result = await res.json() as Result<Query>;
-      setClass(result.data.schemaOrg.class);
+      if (res.ok) {
+        const result = await res.json() as Result<Query>;
+        setClass(result.data.schemaOrg.class);
+      } else {
+        console.log(res);
+      }
     });
   }, [type]);
 
@@ -126,14 +175,10 @@ export default function Main({ nodes, ...props }: Readonly<Props>) {
                   <input
                     class={tw
                       `shadow rounded border focus:outline-none focus:ring transition duration-300 px-2 py-0.5 w-full`}
-                    onInput={(e) => {
-                      setData((data) => ({
-                        ...data,
-                        [name]: e.currentTarget.value,
-                      }));
-                    }}
+                    onInput={handleInput(name)}
                     placeholder={`Enter ${name}`}
                     type="text"
+                    value={properties[name]}
                     id={id}
                   />
                 </li>
