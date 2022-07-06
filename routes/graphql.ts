@@ -5,7 +5,7 @@ import {
   fromFileUrl,
   join,
 } from "https://deno.land/std@0.146.0/path/mod.ts";
-import { buildSchema, graphql } from "graphql/mod.ts";
+import { buildSchema, graphql } from "graphql";
 
 const fileUrl = fromFileUrl(import.meta.url);
 const filePath = join(dirname(fileUrl), "..", "schemas", "schema.graphql");
@@ -36,7 +36,7 @@ export const handler: Handlers = {
       const res = new Response(JSON.stringify(result), {
         headers: {
           "content-type": "application/json",
-          "cache-control": "max-age=604800",
+          "cache-control": "max-age=60",
         },
       });
       return res;
