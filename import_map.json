@@ -9,6 +9,7 @@
     "twind/": "https://esm.sh/twind@0.16.17/",
     "graphql": "https:/esm.sh/graphql@latest",
     "std/": "https://deno.land/std@0.147.0/",
+    "marked": "https://esm.sh/marked@4.0.17",
     "@/": "./"
   }
 }
