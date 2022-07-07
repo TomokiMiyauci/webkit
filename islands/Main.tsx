@@ -4,8 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "preact/hooks";
 import { tw } from "@twind";
 import Preview from "./Preview.tsx";
 import { Class, Maybe, Query, SchemaOrg } from "@/schemas/generated/graphql.ts";
-import { Result } from "@/schemas/types.ts";
-import { gql } from "@/utils/gqls.ts";
+import { gql, gqlFetch } from "@/utils/gqls.ts";
 import { filterKeys } from "std/collections/filter_keys.ts";
 import Form from "@/islands/Form.tsx";
 
@@ -14,7 +13,7 @@ export type Props =
   & { url: string }
   & h.JSX.IntrinsicElements["main"];
 
-const query = gql`query Query($id: String) {
+const query = gql`query Query($id: String!) {
   schemaOrg {
     class(id: $id) {
       name
@@ -114,16 +113,15 @@ export default function Main({ nodes, url, ...props }: Readonly<Props>) {
     if (!type) return;
 
     const url = new URL("/graphql", location.href);
-    url.searchParams.set("query", query);
-    url.searchParams.set("variables", JSON.stringify({ id: type }));
-
-    fetch(url).then(async (res) => {
-      if (res.ok) {
-        const result = await res.json() as Result<Query>;
-        setClass(result.data.schemaOrg.class);
-      } else {
-        console.log(res);
-      }
+    gqlFetch<Query>({
+      endpoint: url,
+      query,
+    }, {
+      variables: { id: type },
+    }).then(({ schemaOrg }) => {
+      setClass(schemaOrg.class);
+    }).catch((e) => {
+      console.log(e);
     });
   }, [type]);
 
