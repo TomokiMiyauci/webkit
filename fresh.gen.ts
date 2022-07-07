@@ -6,8 +6,9 @@ import * as $0 from "./routes/__/index.tsx";
 import * as $1 from "./routes/graphql.ts";
 import * as $2 from "./routes/index.tsx";
 import * as $3 from "./routes/schema-org-gen/index.tsx";
-import * as $$0 from "./islands/Main.tsx";
-import * as $$1 from "./islands/Preview.tsx";
+import * as $$0 from "./islands/Form.tsx";
+import * as $$1 from "./islands/Main.tsx";
+import * as $$2 from "./islands/Preview.tsx";
 
 const manifest = {
   routes: {
@@ -17,8 +18,9 @@ const manifest = {
     "./routes/schema-org-gen/index.tsx": $3,
   },
   islands: {
-    "./islands/Main.tsx": $$0,
-    "./islands/Preview.tsx": $$1,
+    "./islands/Form.tsx": $$0,
+    "./islands/Main.tsx": $$1,
+    "./islands/Preview.tsx": $$2,
   },
   baseUrl: import.meta.url,
 };
