@@ -112,13 +112,14 @@ export class DataType extends NodeClass implements DataTypeNode {
 }
 
 function mapFieldValue(value: string) {
-  return valueFieldValueMap[value];
+  return valueFieldValueMap[value] ?? FieldValue.Unknown;
 }
 
 const valueFieldValueMap: Record<string, FieldValue> = {
   String: FieldValue.Text,
   URL: FieldValue.Url,
   Unknown: FieldValue.Unknown,
+  Number: FieldValue.Number,
 };
 
 export class ClassClass extends NodeClass implements Class {

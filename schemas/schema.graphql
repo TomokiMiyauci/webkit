@@ -43,6 +43,7 @@ enum FieldValue {
   URL
   Text
   Unknown
+  Number
 }
 
 enum Type {

@@ -33,6 +33,7 @@ export type DataTypeNode = Node & {
 };
 
 export enum FieldValue {
+  Number = 'Number',
   Text = 'Text',
   Url = 'URL',
   Unknown = 'Unknown'
@@ -69,7 +70,7 @@ export type SchemaOrg = {
 
 export type SchemaOrgClassArgs = {
   absoluteIRI?: InputMaybe<Scalars['Boolean']>;
-  id?: InputMaybe<Scalars['String']>;
+  id: Scalars['String'];
 };
 
 
@@ -218,7 +219,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
 };
 
 export type SchemaOrgResolvers<ContextType = any, ParentType extends ResolversParentTypes['SchemaOrg'] = ResolversParentTypes['SchemaOrg']> = {
-  class?: Resolver<Maybe<ResolversTypes['Class']>, ParentType, ContextType, RequireFields<SchemaOrgClassArgs, 'absoluteIRI'>>;
+  class?: Resolver<Maybe<ResolversTypes['Class']>, ParentType, ContextType, RequireFields<SchemaOrgClassArgs, 'absoluteIRI' | 'id'>>;
   nodeCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   nodes?: Resolver<Array<ResolversTypes['Property']>, ParentType, ContextType, RequireFields<SchemaOrgNodesArgs, 'absoluteIRI' | 'type'>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
