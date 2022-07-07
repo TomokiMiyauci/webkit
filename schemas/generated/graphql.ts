@@ -234,3 +234,11 @@ export type Resolvers<ContextType = any> = {
   SchemaOrg?: SchemaOrgResolvers<ContextType>;
 };
 
+
+export type NodesAndClassQueryVariables = Exact<{
+  id: Scalars['String'];
+  hasType: Scalars['Boolean'];
+}>;
+
+
+export type NodesAndClassQuery = { __typename?: 'Query', schemaOrg: { __typename?: 'SchemaOrg', nodes: Array<{ __typename?: 'Property', id: string, name: string }>, class?: { __typename?: 'Class', name: string } | null } };

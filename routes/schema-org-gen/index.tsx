@@ -5,14 +5,13 @@ import Header from "../../components/Header.tsx";
 import Main from "../../islands/Main.tsx";
 import NavigationDrawer from "../../components/NavigationDrawer.tsx";
 import Footer from "../../components/Footer.tsx";
-import { Result } from "../../schemas/types.ts";
-import { Query } from "../../schemas/generated/graphql.ts";
+import { NodesAndClassQuery } from "../../schemas/generated/graphql.ts";
 import { tw } from "@twind";
 import { handler as graphqlHandler } from "../graphql.ts";
-import { gql, resolveResponse } from "../../utils/gqls.ts";
+import { gql, resolveResponse } from "@/utils/gqls.ts";
 import { resolveErrorMsg } from "@/utils/errors.ts";
 
-const query = gql`query($id: String!,$hasType: Boolean!) {
+const query = gql`query NodesAndClass($id: String!,$hasType: Boolean!) {
   schemaOrg {
     nodes(type: CLASS) {
       id
@@ -24,7 +23,7 @@ const query = gql`query($id: String!,$hasType: Boolean!) {
   }
 }`;
 
-export const handler: Handlers<Result<Query>["data"]> = {
+export const handler: Handlers<NodesAndClassQuery> = {
   async GET(req, ctx) {
     try {
       const url = new URL(req.url);
@@ -40,7 +39,7 @@ export const handler: Handlers<Result<Query>["data"]> = {
 
       const request = new Request(graphqlUrl, req.clone());
       const res = await graphqlHandler["GET"]!(request, ctx);
-      const data = await resolveResponse<Query>(res);
+      const data = await resolveResponse<NodesAndClassQuery>(res);
 
       return ctx.render(data);
     } catch (e) {
@@ -54,7 +53,7 @@ export const handler: Handlers<Result<Query>["data"]> = {
 };
 
 export default function Home(
-  { data, url }: Readonly<PageProps<Result<Query>["data"]>>,
+  { data, url }: Readonly<PageProps<NodesAndClassQuery>>,
 ): h.JSX.Element {
   return (
     <Fragment>

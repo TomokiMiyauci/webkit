@@ -42,9 +42,11 @@ export async function gqlFetch<R extends Record<string, unknown>>(
 type GqlLocation = { line: number; column: number };
 type GqlError = { message: string; locations: GqlLocation[] };
 
-type Result<T extends Record<string, unknown> = Record<string, unknown>> = {
+export type Result<
+  T extends Record<string, unknown> = Record<string, unknown>,
+> = {
   data?: T;
-  errors: GqlError[];
+  errors?: GqlError[];
 };
 
 export async function resolveResponse<R extends Record<string, unknown>>(

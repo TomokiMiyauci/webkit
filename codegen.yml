@@ -1,9 +1,10 @@
 overwrite: true
-schema: "./schemas/schema.graphql"
+schema: ./schemas/schema.graphql
+documents:
+  - ./routes/**/*.tsx
 generates:
   schemas/generated/graphql.ts:
     plugins:
-      - "typescript"
-      - "typescript-operations"
-      - "typescript-resolvers"
-
+      - typescript
+      - typescript-resolvers
+      - typescript-operations

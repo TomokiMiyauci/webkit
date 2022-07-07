@@ -3,13 +3,19 @@ import { h } from "preact";
 import { useCallback, useEffect, useMemo, useState } from "preact/hooks";
 import { tw } from "@twind";
 import Preview from "./Preview.tsx";
-import { Class, Maybe, Query, SchemaOrg } from "@/schemas/generated/graphql.ts";
+import {
+  Class,
+  Maybe,
+  NodesAndClassQuery,
+  Query,
+  SchemaOrg,
+} from "@/schemas/generated/graphql.ts";
 import { gql, gqlFetch } from "@/utils/gqls.ts";
 import { filterKeys } from "std/collections/filter_keys.ts";
 import Form from "@/islands/Form.tsx";
 
 export type Props =
-  & Pick<SchemaOrg, "nodes">
+  & Pick<NodesAndClassQuery["schemaOrg"], "nodes">
   & { url: string }
   & h.JSX.IntrinsicElements["main"];
 
