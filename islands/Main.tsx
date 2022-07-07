@@ -3,11 +3,12 @@ import { Fragment, h } from "preact";
 import { useCallback, useEffect, useMemo, useState } from "preact/hooks";
 import { apply, tw } from "@twind";
 import Preview from "./Preview.tsx";
-import Required from "../components/Required.tsx";
+import Required from "@/components/Required.tsx";
 import { Class, Maybe, Query, SchemaOrg } from "@/schemas/generated/graphql.ts";
-import { Result } from "../schemas/types.ts";
-import { gql } from "../utils/gqls.ts";
+import { Result } from "@/schemas/types.ts";
+import { gql } from "@/utils/gqls.ts";
 import Input from "@/components/Input.tsx";
+import { filterKeys } from "std/collections/filter_keys.ts";
 
 export type Props =
   & Pick<SchemaOrg, "nodes">
@@ -53,6 +54,8 @@ export default function Main({ nodes, url, ...props }: Readonly<Props>) {
     return record;
   });
 
+  const [invalidNames, setInvalidNames] = useState<string[]>([]);
+
   const [cls, setClass] = useState<Maybe<Class>>();
 
   const [type, setType] = useState<string>(() => {
@@ -65,14 +68,28 @@ export default function Main({ nodes, url, ...props }: Readonly<Props>) {
     [properties, type],
   );
 
+  const dataWithoutInvalidField = useMemo<Record<string, string>>(
+    () => filterKeys(data, (key) => !invalidNames.includes(key)),
+    [data, invalidNames],
+  );
   const handleInput = useCallback<
     (value: string) => h.JSX.GenericEventHandler<HTMLInputElement>
   >((name) =>
     (ev) => {
+      const isValid = ev.currentTarget.reportValidity();
       setProperties((data) => ({
         ...data,
         [name]: ev.currentTarget.value,
       }));
+      if (isValid) {
+        setInvalidNames((data) => {
+          const set = new Set(data);
+          set.delete(name);
+          return [...set];
+        });
+      } else {
+        setInvalidNames((data) => [...new Set(data).add(name)]);
+      }
     }, []);
 
   useEffect(() => {
@@ -88,11 +105,14 @@ export default function Main({ nodes, url, ...props }: Readonly<Props>) {
     window.history.replaceState(null, "", url);
   }, [data]);
 
-  const dataSet = useMemo(() => ({ ...base, "@type": type, ...data }), [
-    base,
-    type,
-    data,
-  ]);
+  const dataSet = useMemo<Record<string, string>>(
+    () => ({ ...base, "@type": type, ...dataWithoutInvalidField }),
+    [
+      base,
+      type,
+      dataWithoutInvalidField,
+    ],
+  );
 
   useEffect(() => {
     if (!type) return;
@@ -224,7 +244,7 @@ export default function Main({ nodes, url, ...props }: Readonly<Props>) {
         </form>
       </section>
 
-      <section>
+      <section class={tw`self-start sticky top-16`}>
         <h1 class={tw`text-3xl mb-4 py-2`}>Preview</h1>
         <Preview data={dataSet} />
       </section>
@@ -245,9 +265,10 @@ const dataTypeInputMap: Record<
 > = {
   URL: (props) => (
     <Input
-      placeholder={`Enter URL format`}
-      type="text"
       {...props}
+      autocomplete="url"
+      placeholder={`Enter URL format`}
+      type="url"
     />
   ),
   Text: (props) => <Input placeholder="Enter any text" {...props} />,
