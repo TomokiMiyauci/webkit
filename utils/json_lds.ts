@@ -1,9 +1,10 @@
-import schemaOrg from "../data/schema.json" assert { type: "json" };
+import schemaOrg from "@/data/schema.json" assert { type: "json" };
 import { filterTruthy, isString, wrap } from "../deps.ts";
-import { Property } from "../schemas/generated/graphql.ts";
+import { Node } from "@/schemas/generated/graphql.ts";
 import { marked } from "https://esm.sh/marked";
 import { extension } from "./markdowns.ts";
 import { mapValues } from "std/collections/map_values.ts";
+import { NodeClass } from "@/schemas/nodes.ts";
 
 marked.use(extension);
 
@@ -79,49 +80,14 @@ export function resolveLanguage(
   return value["@value"];
 }
 
-type Node = {
-  id: string;
-  type: string[];
-  name: string;
-  description: string;
-};
-
-export function formatNode(rawNode: RawNode): Node {
-  const name = resolveLanguage(rawNode["rdfs:label"]);
-
-  const description = marked(
-    resolveLanguage(rawNode["rdfs:comment"]).replaceAll("\n\n", "\n"),
-  );
-
-  return {
-    id: rawNode["@id"],
-    type: wrap(rawNode["@type"]),
-    name,
-    description,
-  };
-}
-
 export function filterType(value: string | string[]): boolean {
   return wrap(value).some((type) => type === "rdfs:Class");
 }
 
-export function constructProperties(
+export function collectSubClass(
   id: string,
   json: SchemaOrg,
-): Property[] | undefined {
-  const subClasses = collectSubClass(id, json);
-
-  if (!subClasses.length) return undefined;
-  const propertyNodes = subClasses.map((node) => {
-    return collectProperties(node["@id"], json);
-  }).flat();
-
-  const properties = propertyNodes.map(formatNode);
-
-  return properties;
-}
-
-function collectSubClass(id: string, json: SchemaOrg): SchemaOrg["@graph"] {
+): SchemaOrg["@graph"] {
   const run = (
     ...[id, json]: Parameters<typeof collectSubClass>
   ): ReturnType<typeof collectSubClass> => {
@@ -148,7 +114,7 @@ function collectSubClass(id: string, json: SchemaOrg): SchemaOrg["@graph"] {
   return run(id, json);
 }
 
-function collectProperties(id: string, schemaOrg: SchemaOrg) {
+export function collectProperties(id: string, schemaOrg: SchemaOrg) {
   const graph = schemaOrg["@graph"];
 
   const result = graph.filter((node) => {
@@ -158,4 +124,29 @@ function collectProperties(id: string, schemaOrg: SchemaOrg) {
   });
 
   return result;
+}
+
+export function collectNodes<T extends keyof RawNode>(
+  rawNode: RawNode,
+  _: T,
+  graph: SchemaOrg["@graph"],
+) {
+  const ids = filterTruthy(wrap(rawNode["schema:rangeIncludes"]));
+
+  const subClasses = ids.map(({ "@id": id }) => {
+    return graph.filter((node) => {
+      return node["@id"] === id;
+    });
+  }).flat();
+
+  return subClasses;
+}
+
+export function pickProps({ name, id, types, description }: NodeClass): Node {
+  return {
+    name,
+    id,
+    types,
+    description,
+  };
 }

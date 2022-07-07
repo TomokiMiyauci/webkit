@@ -1,9 +1,16 @@
-import schemaOrg from "../../../data/schema.json" assert { type: "json" };
-import { filterType, formatNode, resolveIRI } from "../../../utils/json_lds.ts";
-import { SchemaOrgNodesArgs, RequireFields } from "@/schemas/generated/graphql.ts";
+import schemaOrg from "@/data/schema.json" assert { type: "json" };
+import { filterType, resolveIRI } from "@/utils/json_lds.ts";
+import {
+  RequireFields,
+  SchemaOrgNodesArgs,
+} from "@/schemas/generated/graphql.ts";
+import { NodeClass } from "@/schemas/nodes.ts";
 
 const resolver = (
-  { type, absoluteIRI }: RequireFields<SchemaOrgNodesArgs, "type" | "absoluteIRI">,
+  { type, absoluteIRI }: RequireFields<
+    SchemaOrgNodesArgs,
+    "type" | "absoluteIRI"
+  >,
 ) => {
   const graph = schemaOrg["@graph"];
   const contexts = schemaOrg["@context"];
@@ -12,9 +19,15 @@ const resolver = (
     ? graph
     : graph.filter((node) => filterType(node["@type"]));
 
-  const nodes = g.map(formatNode);
+  const nodes = g.map((node) => new NodeClass({ rawNode: node }));
 
-  return nodes.map((node) => resolveIRI({ node, isAbsolute: absoluteIRI, contexts }));
+  return nodes.map(({ name, description, id, types }) =>
+    resolveIRI({
+      node: { name, description, id, types },
+      isAbsolute: absoluteIRI,
+      contexts,
+    })
+  );
 };
 
 export default resolver;

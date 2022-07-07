@@ -1,0 +1,15 @@
+{
+  "@graph": [
+    { "@id": "schema:True", "value": { "@value": "True" } },
+    { "@id": "schema:False", "value": { "@value": "False" } },
+    { "@id": "schema:Boolean", "value": { "@value": "Boolean" } },
+    { "@id": "schema:Date", "value": { "@value": "Date" } },
+    { "@id": "schema:DateTime", "value": { "@value": "DateTime" } },
+    { "@id": "schema:Time", "value": { "@value": "Time" } },
+    { "@id": "schema:Float", "value": { "@value": "Float" } },
+    { "@id": "schema:Integer", "value": { "@value": "Integer" } },
+    { "@id": "schema:Number", "value": { "@value": "Number" } },
+    { "@id": "schema:Text", "value": { "@value": "String" } },
+    { "@id": "schema:URL", "value": { "@value": "URL" } }
+  ]
+}

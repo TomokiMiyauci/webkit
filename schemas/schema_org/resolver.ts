@@ -1,15 +1,11 @@
 import nodes from "./nodes/resolver.ts";
 import schemaOrg from "@/data/schema.json" assert { type: "json" };
-import {
-  constructProperties,
-  formatNode,
-  resolveAbbreviatedValue,
-  resolveIRI,
-} from "@/utils/json_lds.ts";
+import { resolveAbbreviatedValue, resolveIRI } from "@/utils/json_lds.ts";
 import {
   RequireFields,
   SchemaOrgClassArgs,
 } from "@/schemas/generated/graphql.ts";
+import { ClassClass } from "@/schemas/nodes.ts";
 
 const nodeCount = (): number => {
   const graph = schemaOrg["@graph"];
@@ -30,22 +26,21 @@ const cls = (
   const graph = schemaOrg["@graph"];
   const contexts = schemaOrg["@context"];
 
-  const node = graph.find((node) => {
+  const rawNode = graph.find((node) => {
     const $id = resolveAbbreviatedValue(node["@id"], absoluteIRI, contexts);
     return $id === id;
   });
-  if (!node) return;
+  if (!rawNode) return;
 
-  const properties = constructProperties(node["@id"], schemaOrg);
+  const classClass = new ClassClass({ rawNode, schemaOrg });
 
-  return {
-    ...resolveIRI({
-      node: formatNode(node),
-      contexts,
-      isAbsolute: absoluteIRI,
-    }),
-    properties,
-  };
+  const { name, description, types, properties } = classClass;
+
+  return resolveIRI({
+    node: { id: classClass.id, name, description, types, properties },
+    contexts,
+    isAbsolute: absoluteIRI,
+  });
 };
 
 const resolver = () => {

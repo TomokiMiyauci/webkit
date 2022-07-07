@@ -20,14 +20,29 @@ export type Class = Node & {
   id: Scalars['String'];
   name: Scalars['String'];
   properties: Array<Property>;
-  type: Array<Scalars['String']>;
+  types: Array<Scalars['String']>;
 };
+
+export type DataTypeNode = Node & {
+  __typename?: 'DataTypeNode';
+  description: Scalars['String'];
+  field: FieldValue;
+  id: Scalars['String'];
+  name: Scalars['String'];
+  types: Array<Scalars['String']>;
+};
+
+export enum FieldValue {
+  Text = 'Text',
+  Url = 'URL',
+  Unknown = 'Unknown'
+}
 
 export type Node = {
   description: Scalars['String'];
   id: Scalars['String'];
   name: Scalars['String'];
-  type: Array<Scalars['String']>;
+  types: Array<Scalars['String']>;
 };
 
 export type Property = Node & {
@@ -35,17 +50,13 @@ export type Property = Node & {
   description: Scalars['String'];
   id: Scalars['String'];
   name: Scalars['String'];
-  type: Array<Scalars['String']>;
+  schemas: Array<DataTypeNode>;
+  types: Array<Scalars['String']>;
 };
 
 export type Query = {
   __typename?: 'Query';
   schemaOrg: SchemaOrg;
-};
-
-
-export type QuerySchemaOrgArgs = {
-  absoluteIRI?: InputMaybe<Scalars['Boolean']>;
 };
 
 export type SchemaOrg = {
@@ -57,8 +68,8 @@ export type SchemaOrg = {
 
 
 export type SchemaOrgClassArgs = {
-  absoluteIRI?: Scalars['Boolean'];
-  id: Scalars['String'];
+  absoluteIRI?: InputMaybe<Scalars['Boolean']>;
+  id?: InputMaybe<Scalars['String']>;
 };
 
 
@@ -143,8 +154,10 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   Class: ResolverTypeWrapper<Class>;
+  DataTypeNode: ResolverTypeWrapper<DataTypeNode>;
+  FieldValue: FieldValue;
   Int: ResolverTypeWrapper<Scalars['Int']>;
-  Node: ResolversTypes['Class'] | ResolversTypes['Property'];
+  Node: ResolversTypes['Class'] | ResolversTypes['DataTypeNode'] | ResolversTypes['Property'];
   Property: ResolverTypeWrapper<Property>;
   Query: ResolverTypeWrapper<{}>;
   SchemaOrg: ResolverTypeWrapper<SchemaOrg>;
@@ -156,8 +169,9 @@ export type ResolversTypes = {
 export type ResolversParentTypes = {
   Boolean: Scalars['Boolean'];
   Class: Class;
+  DataTypeNode: DataTypeNode;
   Int: Scalars['Int'];
-  Node: ResolversParentTypes['Class'] | ResolversParentTypes['Property'];
+  Node: ResolversParentTypes['Class'] | ResolversParentTypes['DataTypeNode'] | ResolversParentTypes['Property'];
   Property: Property;
   Query: {};
   SchemaOrg: SchemaOrg;
@@ -169,32 +183,42 @@ export type ClassResolvers<ContextType = any, ParentType extends ResolversParent
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   properties?: Resolver<Array<ResolversTypes['Property']>, ParentType, ContextType>;
-  type?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  types?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type DataTypeNodeResolvers<ContextType = any, ParentType extends ResolversParentTypes['DataTypeNode'] = ResolversParentTypes['DataTypeNode']> = {
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  field?: Resolver<ResolversTypes['FieldValue'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  types?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type NodeResolvers<ContextType = any, ParentType extends ResolversParentTypes['Node'] = ResolversParentTypes['Node']> = {
-  __resolveType: TypeResolveFn<'Class' | 'Property', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'Class' | 'DataTypeNode' | 'Property', ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  type?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  types?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
 };
 
 export type PropertyResolvers<ContextType = any, ParentType extends ResolversParentTypes['Property'] = ResolversParentTypes['Property']> = {
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  type?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  schemas?: Resolver<Array<ResolversTypes['DataTypeNode']>, ParentType, ContextType>;
+  types?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
-  schemaOrg?: Resolver<ResolversTypes['SchemaOrg'], ParentType, ContextType, RequireFields<QuerySchemaOrgArgs, 'absoluteIRI'>>;
+  schemaOrg?: Resolver<ResolversTypes['SchemaOrg'], ParentType, ContextType>;
 };
 
 export type SchemaOrgResolvers<ContextType = any, ParentType extends ResolversParentTypes['SchemaOrg'] = ResolversParentTypes['SchemaOrg']> = {
-  class?: Resolver<Maybe<ResolversTypes['Class']>, ParentType, ContextType, RequireFields<SchemaOrgClassArgs, 'absoluteIRI' | 'id'>>;
+  class?: Resolver<Maybe<ResolversTypes['Class']>, ParentType, ContextType, RequireFields<SchemaOrgClassArgs, 'absoluteIRI'>>;
   nodeCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   nodes?: Resolver<Array<ResolversTypes['Property']>, ParentType, ContextType, RequireFields<SchemaOrgNodesArgs, 'absoluteIRI' | 'type'>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -202,6 +226,7 @@ export type SchemaOrgResolvers<ContextType = any, ParentType extends ResolversPa
 
 export type Resolvers<ContextType = any> = {
   Class?: ClassResolvers<ContextType>;
+  DataTypeNode?: DataTypeNodeResolvers<ContextType>;
   Node?: NodeResolvers<ContextType>;
   Property?: PropertyResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;

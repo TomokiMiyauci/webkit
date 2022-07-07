@@ -10,14 +10,14 @@ type SchemaOrg {
 
 interface Node {
   id: String!
-  type: [String!]!
+  types: [String!]!
   name: String!
   description: String!
 }
 
 type Class implements Node {
   id: String!
-  type: [String!]!
+  types: [String!]!
   name: String!
   description: String!
   properties: [Property!]!
@@ -25,9 +25,24 @@ type Class implements Node {
 
 type Property implements Node {
   id: String!
-  type: [String!]!
+  types: [String!]!
   name: String!
   description: String!
+  schemas: [DataTypeNode!]!
+}
+
+type DataTypeNode implements Node {
+  id: String!
+  types: [String!]!
+  name: String!
+  description: String!
+  field: FieldValue!
+}
+
+enum FieldValue {
+  URL
+  Text
+  Unknown
 }
 
 enum Type {
