@@ -1,17 +1,13 @@
 /** @jsx h */
-import { h } from "preact";
+import { Fragment, h } from "preact";
 import { useCallback, useEffect, useMemo, useState } from "preact/hooks";
 import { apply, tw } from "@twind";
 import Preview from "./Preview.tsx";
 import Required from "../components/Required.tsx";
-import {
-  Class,
-  Maybe,
-  Query,
-  SchemaOrg,
-} from "../schemas/generated/graphql.ts";
+import { Class, Maybe, Query, SchemaOrg } from "@/schemas/generated/graphql.ts";
 import { Result } from "../schemas/types.ts";
 import { gql } from "../utils/gqls.ts";
+import Input from "@/components/Input.tsx";
 
 export type Props =
   & Pick<SchemaOrg, "nodes">
@@ -26,6 +22,10 @@ const query = gql`query Query($id: String) {
       properties {
         name
         description
+        schemas {
+          name
+          field
+        }
       }
     }
   }
@@ -52,6 +52,7 @@ export default function Main({ nodes, url, ...props }: Readonly<Props>) {
 
     return record;
   });
+
   const [cls, setClass] = useState<Maybe<Class>>();
 
   const [type, setType] = useState<string>(() => {
@@ -150,10 +151,21 @@ export default function Main({ nodes, url, ...props }: Readonly<Props>) {
               </select>
             </li>
 
-            {cls?.properties.map(({ name, description }) => {
+            {cls?.properties.map(({ name, description, schemas }) => {
               const id = useMemo<string>(
                 () => `form-0-${name.toLowerCase()}`,
                 [name],
+              );
+              const isOnlyField = useMemo<boolean>(() => schemas.length === 1, [
+                schemas,
+              ]);
+              const [dataType, setDataType] = useState<string | undefined>(
+                () => {
+                  if (isOnlyField) {
+                    const schema = schemas[0];
+                    return schema.name;
+                  }
+                },
               );
 
               return (
@@ -172,15 +184,39 @@ export default function Main({ nodes, url, ...props }: Readonly<Props>) {
                     class={tw`mb-3 flex-1`}
                   />
 
-                  <input
-                    class={tw
-                      `shadow rounded border focus:outline-none focus:ring transition duration-300 px-2 py-0.5 w-full`}
-                    onInput={handleInput(name)}
-                    placeholder={`Enter ${name}`}
-                    type="text"
-                    value={properties[name]}
-                    id={id}
-                  />
+                  {!isOnlyField && (
+                    <fieldset>
+                      <legend>Data Type</legend>
+
+                      {schemas.map(({ field, name: dataTypeName }) => {
+                        const id = useMemo<string>(
+                          () => `${name}-${dataTypeName}`,
+                          [name, dataTypeName],
+                        );
+                        return (
+                          <Fragment>
+                            <input
+                              id={id}
+                              value={field}
+                              checked={dataType === field}
+                              onInput={(ev) =>
+                                setDataType(ev.currentTarget.value)}
+                              type="radio"
+                            />
+                            <label for={id}>
+                              {dataTypeName}
+                            </label>
+                          </Fragment>
+                        );
+                      })}
+                    </fieldset>
+                  )}
+
+                  {dataType && makeInput(dataType)({
+                    onInput: handleInput(name),
+                    id,
+                    value: data[name],
+                  })}
                 </li>
               );
             })}
@@ -195,3 +231,24 @@ export default function Main({ nodes, url, ...props }: Readonly<Props>) {
     </main>
   );
 }
+
+function makeInput(value: string) {
+  const component = dataTypeInputMap[value] ??
+    (() => <p class={tw`text-red-500`}>This field is not supported now.</p>);
+
+  return component;
+}
+
+const dataTypeInputMap: Record<
+  string,
+  (props: h.JSX.IntrinsicElements["input"]) => h.JSX.Element
+> = {
+  URL: (props) => (
+    <Input
+      placeholder={`Enter URL format`}
+      type="text"
+      {...props}
+    />
+  ),
+  Text: (props) => <Input placeholder="Enter any text" {...props} />,
+};
