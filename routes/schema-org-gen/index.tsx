@@ -9,45 +9,43 @@ import { Result } from "../../schemas/types.ts";
 import { Query } from "../../schemas/generated/graphql.ts";
 import { tw } from "@twind";
 import { handler as graphqlHandler } from "../graphql.ts";
-import { gql } from "../../utils/gqls.ts";
+import { gql, resolveResponse } from "../../utils/gqls.ts";
+import { resolveErrorMsg } from "@/utils/errors.ts";
 
-const query = gql`query {
+const query = gql`query($id: String!,$hasType: Boolean!) {
   schemaOrg {
     nodes(type: CLASS) {
       id
       name
     }
+    class(id: $id) @include(if: $hasType) {
+      name
+    }
   }
 }`;
-
-const MEDIA_TYPE = "application/json";
 
 export const handler: Handlers<Result<Query>["data"]> = {
   async GET(req, ctx) {
     try {
-      const graphqlUrl = new URL("/graphql", req.url);
+      const url = new URL(req.url);
+      const $type = url.searchParams.get("@type");
+      const has$Type = !!$type;
+
+      const graphqlUrl = new URL("/graphql", url);
       graphqlUrl.searchParams.set("query", query);
+
+      const variables = { hasType: has$Type, id: $type ?? "" };
+      const varStr = JSON.stringify(variables);
+      graphqlUrl.searchParams.set("variables", varStr);
+
       const request = new Request(graphqlUrl, req.clone());
       const res = await graphqlHandler["GET"]!(request, ctx);
+      const data = await resolveResponse<Query>(res);
 
-      if (res.ok) {
-        const { data, errors } = await res.json() as Result<Query>;
-        if (errors) {
-          return new Response(JSON.stringify(errors), {
-            headers: {
-              "Content-Type": MEDIA_TYPE,
-            },
-          });
-        }
-
-        return ctx.render(data);
-      } else {
-        return res;
-      }
+      return ctx.render(data);
     } catch (e) {
-      const msg = e instanceof Error
-        ? e.message
-        : "Unknown error has occurred.";
+      const msg = resolveErrorMsg(e);
+
       return new Response(msg, {
         status: 500,
       });

@@ -1,11 +1,9 @@
 import { Handlers } from "$fresh/server.ts";
-import rootValue from "../schemas/mod.ts";
-import {
-  dirname,
-  fromFileUrl,
-  join,
-} from "https://deno.land/std@0.146.0/path/mod.ts";
+import rootValue from "@/schemas/mod.ts";
+import { dirname, fromFileUrl, join } from "std/path/mod.ts";
+import { contentType } from "std/media_types/mod.ts";
 import { buildSchema, graphql } from "graphql";
+import { resolveErrorMsg } from "@/utils/errors.ts";
 
 const fileUrl = fromFileUrl(import.meta.url);
 const filePath = join(dirname(fileUrl), "..", "schemas", "schema.graphql");
@@ -35,16 +33,13 @@ export const handler: Handlers = {
       });
       const res = new Response(JSON.stringify(result), {
         headers: {
-          "content-type": "application/json",
+          "content-type": contentType(".json"),
           "cache-control": "max-age=60",
         },
       });
       return res;
     } catch (e) {
-      const msg = e instanceof Error
-        ? e.message
-        : "Unknown error has occurred.";
-
+      const msg = resolveErrorMsg(e);
       const res = new Response(msg, {
         status: 500,
       });
