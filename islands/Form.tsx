@@ -91,7 +91,10 @@ const dataTypeInputMap: Record<
       type="url"
     />
   ),
-  Text: (props) => <Input placeholder="Enter any text" {...props} />,
+  Text: (props) => <Input placeholder="Enter text" {...props} />,
+  Number: (props) => (
+    <Input type="number" placeholder="Enter number" min={0} {...props} />
+  ),
 };
 
 type FieldProps = {
