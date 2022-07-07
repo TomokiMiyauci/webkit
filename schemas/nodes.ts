@@ -1,0 +1,152 @@
+import {
+  Class,
+  DataTypeNode,
+  FieldValue,
+  Node,
+  Property,
+} from "@/schemas/generated/graphql.ts";
+import {
+  collectNodes,
+  collectProperties,
+  collectSubClass,
+  RawNode,
+  resolveLanguage,
+  SchemaOrg,
+} from "@/utils/json_lds.ts";
+import { marked } from "marked";
+import { wrap } from "@/deps.ts";
+import dataType from "@/data/data_type.json" assert { type: "json" };
+
+export type Props = { rawNode: RawNode };
+
+type DataTypeType = typeof dataType;
+
+export class NodeClass implements Node {
+  protected rawNode: RawNode;
+
+  constructor({ rawNode }: Readonly<Props>) {
+    this.rawNode = rawNode;
+  }
+
+  get id() {
+    return this.rawNode["@id"];
+  }
+
+  get description() {
+    const description = marked(
+      resolveLanguage(this.rawNode["rdfs:comment"]).replaceAll("\n\n", "\n"),
+    );
+    return description;
+  }
+
+  get name() {
+    const name = resolveLanguage(this.rawNode["rdfs:label"]);
+    return name;
+  }
+
+  get types() {
+    const types = wrap(this.rawNode["@type"]);
+
+    return types;
+  }
+}
+
+export class PropertyClass extends NodeClass implements Property {
+  protected schemaOrg: SchemaOrg;
+
+  constructor(
+    { rawNode, schemaOrg }: Readonly<Props & { schemaOrg: SchemaOrg }>,
+  ) {
+    super({ rawNode });
+    this.schemaOrg = schemaOrg;
+  }
+  get schemas() {
+    const subClasses = collectNodes(
+      this.rawNode,
+      "schema:rangeIncludes",
+      this.schemaOrg["@graph"],
+    );
+
+    const schemas = subClasses.map((rawNode) => {
+      const dataTypeNode = new DataType({ rawNode, dataType });
+      const { name, id, types, description, field } = dataTypeNode;
+
+      return { name, id, types, description, field };
+    });
+
+    return schemas;
+  }
+}
+
+export class DataType extends NodeClass implements DataTypeNode {
+  protected dataType: DataTypeType;
+
+  protected dataTypeNode: { "@id": string; value: string } | undefined;
+
+  constructor(
+    { rawNode, dataType }: Readonly<Props & { dataType: DataTypeType }>,
+  ) {
+    super({ rawNode });
+    this.dataType = dataType;
+
+    const id = rawNode["@id"];
+    const graph = dataType["@graph"];
+    const dataTypeNode = graph.find((node) => node["@id"] === id);
+    if (!dataTypeNode) {
+      return;
+    }
+
+    this.dataTypeNode = {
+      "@id": dataTypeNode["@id"],
+      value: dataTypeNode.value["@value"],
+    };
+  }
+
+  get isDataType(): boolean {
+    return !!this.dataTypeNode;
+  }
+
+  get field() {
+    return mapFieldValue(this.dataTypeNode?.value ?? "Unknown");
+  }
+}
+
+function mapFieldValue(value: string) {
+  return valueFieldValueMap[value];
+}
+
+const valueFieldValueMap: Record<string, FieldValue> = {
+  String: FieldValue.Text,
+  URL: FieldValue.Url,
+  Unknown: FieldValue.Unknown,
+};
+
+export class ClassClass extends NodeClass implements Class {
+  protected schemaOrg: SchemaOrg;
+  constructor(
+    { rawNode, schemaOrg }: Readonly<Props & { schemaOrg: SchemaOrg }>,
+  ) {
+    super({ rawNode });
+    this.schemaOrg = schemaOrg;
+  }
+  get properties() {
+    const id = this.rawNode["@id"];
+    const schemaOrg = this.schemaOrg;
+    const subClasses = collectSubClass(id, schemaOrg);
+
+    const propertyNodes = subClasses.map((node) => {
+      return collectProperties(node["@id"], schemaOrg);
+    }).flat();
+
+    const properties = propertyNodes.map((node) => {
+      const property = new PropertyClass({
+        rawNode: node,
+        schemaOrg: this.schemaOrg,
+      });
+      const { name, id, types, description, schemas } = property;
+      return { name, id, types, description, schemas };
+    });
+
+    return properties;
+  }
+}
