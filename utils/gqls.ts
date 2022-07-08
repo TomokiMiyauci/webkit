@@ -1,3 +1,5 @@
+import { json } from "@/utils/jsons.ts";
+
 /** Compress GraphQL query. */
 export function gql([query]: TemplateStringsArray): string {
   return query
@@ -8,9 +10,7 @@ export function gql([query]: TemplateStringsArray): string {
     .trim();
 }
 
-type json = string | number | boolean | null | { [k: string]: json } | json[];
-
-type Params = {
+export type Params = {
   /** GraphQL query */
   query: string;
 
@@ -18,24 +18,42 @@ type Params = {
   endpoint: URL;
 };
 
-type Options = {
+export type Options = {
   /** GraphQL variables. */
   variables: json;
+
+  /** HTTP Request method.
+   * @default `GET`
+   */
+  // deno-lint-ignore ban-types
+  method: "GET" | "POST" | ({} & string);
 };
 
-/** Tiny GraphQL fetch client. */
-export async function gqlFetch<R extends Record<string, unknown>>(
+/** Tiny GraphQL fetch client.
+ * @throws {@link TypeError} {@link DOMException}
+ */
+export async function fetchGql<R extends Record<string, unknown>>(
   { endpoint, query }: Readonly<Params>,
-  { variables }: Readonly<Partial<Options>> = {},
+  { variables, method }: Readonly<Partial<Options>> = {},
   init?: RequestInit,
 ): Promise<R> {
-  endpoint.searchParams.set("query", query);
-  if (variables) {
-    const varStr = JSON.stringify(variables);
-    endpoint.searchParams.set("variables", varStr);
+  method = init?.method ?? "GET";
+  if (method === "GET") {
+    endpoint.searchParams.set("query", query);
+    if (variables) {
+      const varStr = JSON.stringify(variables);
+      endpoint.searchParams.set("variables", varStr);
+    }
   }
 
-  const res = await fetch(endpoint, init);
+  const res = await fetch(endpoint, {
+    method,
+    body: method === "POST" ? JSON.stringify({ query, variables }) : undefined,
+    headers: {
+      "content-type": "application/json; charset=UTF-8",
+    },
+    ...init,
+  });
   return resolveResponse<R>(res);
 }
 
