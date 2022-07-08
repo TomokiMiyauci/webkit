@@ -9,6 +9,7 @@ import {
   collectNodes,
   collectProperties,
   collectSubClass,
+  isPending,
   RawNode,
   resolveLanguage,
   SchemaOrg,
@@ -49,6 +50,12 @@ export class NodeClass implements Node {
 
     return types;
   }
+
+  get isPending() {
+    const isPartOf = this.rawNode["schema:isPartOf"];
+
+    return isPending(isPartOf?.["@id"]);
+  }
 }
 
 export class PropertyClass extends NodeClass implements Property {
@@ -69,9 +76,9 @@ export class PropertyClass extends NodeClass implements Property {
 
     const schemas = subClasses.map((rawNode) => {
       const dataTypeNode = new DataType({ rawNode, dataType });
-      const { name, id, types, description, field } = dataTypeNode;
+      const { name, id, types, description, field, isPending } = dataTypeNode;
 
-      return { name, id, types, description, field };
+      return { name, id, types, description, field, isPending };
     });
 
     return schemas;
@@ -144,8 +151,8 @@ export class ClassClass extends NodeClass implements Class {
         rawNode: node,
         schemaOrg: this.schemaOrg,
       });
-      const { name, id, types, description, schemas } = property;
-      return { name, id, types, description, schemas };
+      const { name, id, types, description, schemas, isPending } = property;
+      return { name, id, types, description, schemas, isPending };
     });
 
     return properties;

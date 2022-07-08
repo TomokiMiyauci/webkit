@@ -29,6 +29,7 @@ const query = gql`query NodesAndClass($id: String!,$hasType: Boolean!) {
           name
           field
         }
+        isPending
       }
     }
   }
@@ -52,7 +53,7 @@ export const handler: Handlers<NodesAndClassQuery> = {
       graphqlUrl.searchParams.set("variables", varStr);
 
       const request = new Request(graphqlUrl, req.clone());
-      const res = await graphqlHandler["GET"]!(request, ctx);
+      const res = await graphqlHandler(request, ctx);
       const data = await resolveResponse<NodesAndClassQuery>(res);
 
       return ctx.render(data);
@@ -71,22 +72,23 @@ export default function Home(
 ): h.JSX.Element {
   return (
     <div
-      class={tw`md:grid md:h-screen grid-rows-auto-1 grid-cols-auto-1`}
+      class={tw
+        `grid h-screen grid-rows-auto-auto-1 md:grid-rows-auto-1 md:grid-cols-auto-1`}
     >
       <Header
         class={tw
-          `backdrop-blur backdrop-filter border-b px-4 py-2 row-span-1 col-span-3`}
+          `backdrop-blur backdrop-filter border-b px-4 py-2 md:row-span-1 md:col-span-3`}
       />
 
       <NavigationDrawer
         class={tw
-          `border-r border-b bg-gray-50 px-4 py-2 shadow row-span-2 col-span-1 md:w-64`}
+          `border-r border-b bg-gray-50 px-4 py-2 shadow md:row-span-2 md:col-span-1 md:w-64`}
       />
 
       <Main
         url={url.toString()}
         class={tw
-          `container mx-auto row-span-2 col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8 overflow-y-auto p-2 md:p-0`}
+          `md:container mx-auto md:row-span-2 md:col-span-2 grid md:grid-cols-1 md:grid-cols-2 gap-8 overflow-y-auto p-2 md:p-0 grid-rows-1-auto`}
         schemaOrg={data.schemaOrg}
       />
       {/* <Footer class={tw`container mx-auto mt-20`} /> */}

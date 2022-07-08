@@ -4,7 +4,6 @@ import { Node } from "@/schemas/generated/graphql.ts";
 import { marked } from "https://esm.sh/marked";
 import { extension } from "./markdowns.ts";
 import { mapValues } from "std/collections/map_values.ts";
-import { NodeClass } from "@/schemas/nodes.ts";
 
 marked.use(extension);
 
@@ -142,11 +141,8 @@ export function collectNodes<T extends keyof RawNode>(
   return subClasses;
 }
 
-export function pickProps({ name, id, types, description }: NodeClass): Node {
-  return {
-    name,
-    id,
-    types,
-    description,
-  };
+export function isPending(
+  value: unknown,
+): value is "https://pending.schema.org" {
+  return "https://pending.schema.org" === value;
 }

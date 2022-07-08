@@ -13,6 +13,7 @@ interface Node {
   types: [String!]!
   name: String!
   description: String!
+  isPending: Boolean!
 }
 
 type Class implements Node {
@@ -20,7 +21,8 @@ type Class implements Node {
   types: [String!]!
   name: String!
   description: String!
-  properties: [Property!]!
+  properties(orderBy: NodeOrderByInput): [Property!]!
+  isPending: Boolean!
 }
 
 type Property implements Node {
@@ -29,6 +31,7 @@ type Property implements Node {
   name: String!
   description: String!
   schemas: [DataTypeNode!]!
+  isPending: Boolean!
 }
 
 type DataTypeNode implements Node {
@@ -37,6 +40,7 @@ type DataTypeNode implements Node {
   name: String!
   description: String!
   field: FieldValue!
+  isPending: Boolean!
 }
 
 enum FieldValue {
@@ -49,4 +53,13 @@ enum FieldValue {
 enum Type {
   CLASS
   ALL
+}
+
+input NodeOrderByInput {
+  isPending: Sort
+}
+
+enum Sort {
+  ASC
+  DESC
 }
