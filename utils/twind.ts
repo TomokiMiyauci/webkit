@@ -10,7 +10,17 @@ export const config: Configuration = {
       preflight,
       {
         body: apply`text-gray-800 antialiased`,
+        "p > p > a": apply`text-blue-500`,
       },
     ),
+  plugins: {
+    /** for avoid twind bug */
+    "grid-rows-auto-1": {
+      "grid-template-rows": "auto 1fr",
+    },
+    "grid-cols-auto-1": {
+      "grid-template-columns": "auto 1fr",
+    },
+  },
 };
 if (IS_BROWSER) setup(config);

@@ -1,10 +1,9 @@
 /** @jsx h */
-import { Fragment, h } from "preact";
+import { h } from "preact";
 import { Handlers, PageProps } from "$fresh/server.ts";
 import Header from "@/components/Header.tsx";
 import Main from "@/islands/Main.tsx";
 import NavigationDrawer from "@/components/NavigationDrawer.tsx";
-import Footer from "@/components/Footer.tsx";
 import {
   NodesAndClassQuery,
   NodesAndClassQueryVariables,
@@ -71,30 +70,26 @@ export default function Home(
   { data, url }: Readonly<PageProps<NodesAndClassQuery>>,
 ): h.JSX.Element {
   return (
-    <Fragment>
+    <div
+      class={tw`md:grid md:h-screen grid-rows-auto-1 grid-cols-auto-1`}
+    >
       <Header
         class={tw
-          `sticky top-0 backdrop-blur backdrop-filter border-b px-4 py-2`}
+          `backdrop-blur backdrop-filter border-b px-4 py-2 row-span-1 col-span-3`}
       />
 
-      <section
-        class={tw`grid h-full`}
-      >
-        <NavigationDrawer
-          class={tw
-            `border-r sticky h-full top-0 bg-gray-50 px-4 py-2 shadow hidden sm:hidden`}
-        />
+      <NavigationDrawer
+        class={tw
+          `border-r border-b bg-gray-50 px-4 py-2 shadow row-span-2 col-span-1 md:w-64`}
+      />
 
-        <div class={tw`p-8`}>
-          <Main
-            url={url.toString()}
-            class={tw`container mx-auto grid grid-cols-1 sm:grid-cols-2 gap-8`}
-            schemaOrg={data.schemaOrg}
-          />
-
-          <Footer class={tw`container mx-auto mt-20`} />
-        </div>
-      </section>
-    </Fragment>
+      <Main
+        url={url.toString()}
+        class={tw
+          `container mx-auto row-span-2 col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8 overflow-y-auto p-2 md:p-0`}
+        schemaOrg={data.schemaOrg}
+      />
+      {/* <Footer class={tw`container mx-auto mt-20`} /> */}
+    </div>
   );
 }
