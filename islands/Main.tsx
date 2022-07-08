@@ -2,24 +2,19 @@
 import { h } from "preact";
 import { useCallback, useEffect, useMemo, useState } from "preact/hooks";
 import { tw } from "@twind";
-import Preview from "./Preview.tsx";
-import {
-  Class,
-  Maybe,
-  NodesAndClassQuery,
-  Query,
-  SchemaOrg,
-} from "@/schemas/generated/graphql.ts";
+import Preview from "@/islands/Preview.tsx";
+import { ClassQuery, NodesAndClassQuery } from "@/schemas/generated/graphql.ts";
 import { gql, gqlFetch } from "@/utils/gqls.ts";
 import { filterKeys } from "std/collections/filter_keys.ts";
 import Form from "@/islands/Form.tsx";
+import useIsFirstMount from "atomic-ui@preact/hooks/use_is_first_mount.ts";
 
 export type Props =
-  & Pick<NodesAndClassQuery["schemaOrg"], "nodes">
+  & NodesAndClassQuery
   & { url: string }
   & h.JSX.IntrinsicElements["main"];
 
-const query = gql`query Query($id: String!) {
+const query = gql`query Class($id: String!) {
   schemaOrg {
     class(id: $id) {
       name
@@ -41,8 +36,12 @@ const base = {
   "@context": "https://schema.org",
 };
 
-export default function Main({ nodes, url, ...props }: Readonly<Props>) {
+export default function Main(
+  { schemaOrg: { nodes, class: classData }, url, ...props }: Readonly<Props>,
+) {
   const _url = useMemo<URL>(() => new URL(url), [url]);
+
+  const isFirstMount = useIsFirstMount();
 
   const [properties, setProperties] = useState<Record<string, string>>(() => {
     const record: Record<string, string> = {};
@@ -57,7 +56,7 @@ export default function Main({ nodes, url, ...props }: Readonly<Props>) {
 
   const [invalidNames, setInvalidNames] = useState<string[]>([]);
 
-  const [cls, setClass] = useState<Maybe<Class>>();
+  const [cls, setClass] = useState<ClassQuery["schemaOrg"]["class"]>(classData);
 
   const [type, setType] = useState<string>(() => {
     const type = _url.searchParams.get("@type");
@@ -116,10 +115,10 @@ export default function Main({ nodes, url, ...props }: Readonly<Props>) {
   );
 
   useEffect(() => {
-    if (!type) return;
+    if (!type || isFirstMount) return;
 
     const url = new URL("/graphql", location.href);
-    gqlFetch<Query>({
+    gqlFetch<ClassQuery>({
       endpoint: url,
       query,
     }, {

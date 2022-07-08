@@ -1,13 +1,16 @@
 /** @jsx h */
 import { Fragment, h } from "preact";
 import { Handlers, PageProps } from "$fresh/server.ts";
-import Header from "../../components/Header.tsx";
-import Main from "../../islands/Main.tsx";
-import NavigationDrawer from "../../components/NavigationDrawer.tsx";
-import Footer from "../../components/Footer.tsx";
-import { NodesAndClassQuery } from "../../schemas/generated/graphql.ts";
+import Header from "@/components/Header.tsx";
+import Main from "@/islands/Main.tsx";
+import NavigationDrawer from "@/components/NavigationDrawer.tsx";
+import Footer from "@/components/Footer.tsx";
+import {
+  NodesAndClassQuery,
+  NodesAndClassQueryVariables,
+} from "@/schemas/generated/graphql.ts";
 import { tw } from "@twind";
-import { handler as graphqlHandler } from "../graphql.ts";
+import { handler as graphqlHandler } from "@/routes/graphql.ts";
 import { gql, resolveResponse } from "@/utils/gqls.ts";
 import { resolveErrorMsg } from "@/utils/errors.ts";
 
@@ -19,6 +22,15 @@ const query = gql`query NodesAndClass($id: String!,$hasType: Boolean!) {
     }
     class(id: $id) @include(if: $hasType) {
       name
+      description
+      properties {
+        name
+        description
+        schemas {
+          name
+          field
+        }
+      }
     }
   }
 }`;
@@ -33,7 +45,10 @@ export const handler: Handlers<NodesAndClassQuery> = {
       const graphqlUrl = new URL("/graphql", url);
       graphqlUrl.searchParams.set("query", query);
 
-      const variables = { hasType: has$Type, id: $type ?? "" };
+      const variables: NodesAndClassQueryVariables = {
+        hasType: has$Type,
+        id: $type ?? "",
+      };
       const varStr = JSON.stringify(variables);
       graphqlUrl.searchParams.set("variables", varStr);
 
@@ -72,9 +87,9 @@ export default function Home(
 
         <div class={tw`p-8`}>
           <Main
-            nodes={data.schemaOrg.nodes}
             url={url.toString()}
             class={tw`container mx-auto grid grid-cols-1 sm:grid-cols-2 gap-8`}
+            schemaOrg={data.schemaOrg}
           />
 
           <Footer class={tw`container mx-auto mt-20`} />

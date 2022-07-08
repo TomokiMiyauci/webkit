@@ -2,6 +2,7 @@ overwrite: true
 schema: ./schemas/schema.graphql
 documents:
   - ./routes/**/*.tsx
+  - ./islands/**/*.tsx
 generates:
   schemas/generated/graphql.ts:
     plugins:

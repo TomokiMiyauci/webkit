@@ -235,10 +235,17 @@ export type Resolvers<ContextType = any> = {
 };
 
 
+export type ClassQueryVariables = Exact<{
+  id: Scalars['String'];
+}>;
+
+
+export type ClassQuery = { __typename?: 'Query', schemaOrg: { __typename?: 'SchemaOrg', class?: { __typename?: 'Class', name: string, description: string, properties: Array<{ __typename?: 'Property', name: string, description: string, schemas: Array<{ __typename?: 'DataTypeNode', name: string, field: FieldValue }> }> } | null } };
+
 export type NodesAndClassQueryVariables = Exact<{
   id: Scalars['String'];
   hasType: Scalars['Boolean'];
 }>;
 
 
-export type NodesAndClassQuery = { __typename?: 'Query', schemaOrg: { __typename?: 'SchemaOrg', nodes: Array<{ __typename?: 'Property', id: string, name: string }>, class?: { __typename?: 'Class', name: string } | null } };
+export type NodesAndClassQuery = { __typename?: 'Query', schemaOrg: { __typename?: 'SchemaOrg', nodes: Array<{ __typename?: 'Property', id: string, name: string }>, class?: { __typename?: 'Class', name: string, description: string, properties: Array<{ __typename?: 'Property', name: string, description: string, schemas: Array<{ __typename?: 'DataTypeNode', name: string, field: FieldValue }> }> } | null } };
