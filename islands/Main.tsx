@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "preact/hooks";
 import { tw } from "@twind";
 import Preview from "@/islands/Preview.tsx";
 import { ClassQuery, NodesAndClassQuery } from "@/schemas/generated/graphql.ts";
-import { gql, gqlFetch } from "@/utils/gqls.ts";
+import { fetchGql, gql } from "@/utils/gqls.ts";
 import { filterKeys } from "std/collections/filter_keys.ts";
 import Form from "@/islands/Form.tsx";
 import useIsFirstMount from "atomic-ui@preact/hooks/use_is_first_mount.ts";
@@ -26,6 +26,7 @@ const query = gql`query Class($id: String!) {
           name
           field
         }
+        isPending
       }
     }
   }
@@ -118,7 +119,7 @@ export default function Main(
     if (!type || isFirstMount) return;
 
     const url = new URL("/graphql", location.href);
-    gqlFetch<ClassQuery>({
+    fetchGql<ClassQuery>({
       endpoint: url,
       query,
     }, {
@@ -132,7 +133,7 @@ export default function Main(
 
   return (
     <main {...props}>
-      <section>
+      <section class={tw`overflow-y-auto`}>
         <h1 class={tw`text-3xl p-2`}>Form</h1>
 
         <Form
@@ -142,12 +143,12 @@ export default function Main(
           }}
           formData={data}
           options={nodes}
-          fields={cls?.properties ?? []}
+          classNode={cls}
           onInput={handleInput}
         />
       </section>
 
-      <section class={tw`self-start sticky top-16`}>
+      <section>
         <h1 class={tw`text-3xl mb-4 py-2`}>Preview</h1>
         <Preview data={dataSet} />
       </section>

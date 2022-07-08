@@ -1,8 +1,10 @@
 /** @jsx h */
 import { Handlers, PageProps } from "$fresh/server.ts";
 import { h } from "preact";
-import { json } from "../../deps.ts";
+import { json } from "@/deps.ts";
 import { tw } from "@twind";
+import { jsonStringify } from "@/utils/jsons.ts";
+import { contentType } from "std/media_types/mod.ts";
 
 export const handler: Handlers = {
   async GET(req, ctx) {
@@ -23,10 +25,19 @@ export const handler: Handlers = {
     };
 
     if (errors) {
-      const res = new Response(JSON.stringify(errors), {
+      const result = jsonStringify(errors);
+      if (!result[0]) {
+        return new Response(result[1].message, {
+          status: 500,
+          headers: {
+            "content-type": contentType("txt"),
+          },
+        });
+      }
+      const res = new Response(result[1], {
         status: 500,
         headers: {
-          "Content-Type": "application/json",
+          "content-type": contentType(".json"),
         },
       });
 
@@ -40,7 +51,7 @@ export const handler: Handlers = {
 export default function Page(page: PageProps<json | undefined>) {
   const url = new URL(page.url);
   const query = url.searchParams.get("query") ?? "";
-  const data = page.data;
+  const result = jsonStringify(page.data);
 
   return (
     <main class={tw`w-1/2 mx-auto`}>
@@ -68,10 +79,10 @@ export default function Page(page: PageProps<json | undefined>) {
         </button>
       </form>
 
-      {data && (
+      {result[0] && (
         <pre>
           <code>
-            {JSON.stringify(data)}
+            {result[1]}
           </code>
         </pre>
       )}

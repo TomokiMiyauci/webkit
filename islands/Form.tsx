@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState } from "preact/hooks";
 import { apply, tw } from "@twind";
 import Input from "@/components/Input.tsx";
 import Required from "@/components/Required.tsx";
-import { DataTypeNode } from "@/schemas/generated/graphql.ts";
+import { ClassQuery, RequireFields } from "@/schemas/generated/graphql.ts";
 
 const card = apply
   `hover:bg-gray-100 hover:shadow p-3 rounded-md transition duration-300`;
@@ -12,7 +12,7 @@ const card = apply
 export type Props = {
   options: { id: string; name: string }[];
 
-  fields: { name: string; description: string; schemas: any[] }[];
+  classNode: ClassQuery["schemaOrg"]["class"];
 
   onTypeChange: h.JSX.GenericEventHandler<HTMLSelectElement>;
 
@@ -24,7 +24,9 @@ export type Props = {
 };
 
 export default function Form(
-  { options, fields, onTypeChange, type, formData, onInput }: Readonly<Props>,
+  { options, classNode, onTypeChange, type, formData, onInput }: Readonly<
+    Props
+  >,
 ): h.JSX.Element {
   const handleSubmit = useCallback((ev: Event) => {
     ev.preventDefault();
@@ -62,7 +64,7 @@ export default function Form(
           </select>
         </li>
 
-        {fields.map((fieldData) => (
+        {classNode?.properties.map((fieldData) => (
           <li class={tw(card)}>
             <Field {...fieldData} onInput={onInput} formData={formData} />
           </li>
@@ -97,20 +99,21 @@ const dataTypeInputMap: Record<
   ),
 };
 
-type FieldProps = {
-  name: string;
+type FieldProps =
+  & RequireFields<
+    ClassQuery["schemaOrg"],
+    "class"
+  >["class"]["properties"][number]
+  & {
+    onInput: (value: string) => h.JSX.GenericEventHandler<HTMLInputElement>;
 
-  description: string;
-
-  schemas: DataTypeNode[];
-
-  onInput: (value: string) => h.JSX.GenericEventHandler<HTMLInputElement>;
-
-  formData: Record<string, string>;
-};
+    formData: Record<string, string>;
+  };
 
 function Field(
-  { name, description, schemas, formData, onInput }: Readonly<FieldProps>,
+  { name, description, schemas, formData, onInput }: Readonly<
+    FieldProps
+  >,
 ): h.JSX.Element {
   const id = useMemo<string>(
     () => `form-0-${name.toLowerCase()}`,
@@ -130,9 +133,11 @@ function Field(
 
   return (
     <Fragment>
-      <label for={id} class={tw`cursor-auto text-2xl`}>
-        {name}
-      </label>
+      <div class={tw`flex justify-between`}>
+        <label for={id} class={tw`cursor-auto text-2xl`}>
+          {name}
+        </label>
+      </div>
 
       <p
         dangerouslySetInnerHTML={{
