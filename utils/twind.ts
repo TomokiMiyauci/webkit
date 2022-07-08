@@ -21,6 +21,12 @@ export const config: Configuration = {
     "grid-cols-auto-1": {
       "grid-template-columns": "auto 1fr",
     },
+    "grid-rows-auto-auto-1": {
+      "grid-template-rows": "auto auto 1fr",
+    },
+    "grid-rows-1-auto": {
+      "grid-template-rows": "1fr auto",
+    },
   },
 };
 if (IS_BROWSER) setup(config);
