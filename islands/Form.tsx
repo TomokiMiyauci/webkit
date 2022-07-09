@@ -143,34 +143,36 @@ function Field(
         dangerouslySetInnerHTML={{
           __html: description,
         }}
-        class={tw`md-root`}
+        class={tw`md-root mb-2`}
       >
       </div>
 
       {!isOnlyField && (
-        <fieldset>
+        <fieldset class={tw`my-2`}>
           <legend>Data Type</legend>
 
-          {schemas.map(({ field, name: dataTypeName }) => {
-            const id = useMemo<string>(
-              () => `${name}-${dataTypeName}`,
-              [name, dataTypeName],
-            );
-            return (
-              <Fragment>
-                <input
-                  id={id}
-                  value={field}
-                  checked={dataType === field}
-                  onInput={(ev) => setDataType(ev.currentTarget.value)}
-                  type="radio"
-                />
-                <label for={id}>
-                  {dataTypeName}
-                </label>
-              </Fragment>
-            );
-          })}
+          <ul class={tw`space-x-2`}>
+            {schemas.map(({ field, name: dataTypeName }) => {
+              const id = useMemo<string>(
+                () => `${name}-${dataTypeName}`,
+                [name, dataTypeName],
+              );
+              return (
+                <li class={tw`inline space-x-1`}>
+                  <input
+                    id={id}
+                    value={field}
+                    checked={dataType === field}
+                    onInput={(ev) => setDataType(ev.currentTarget.value)}
+                    type="radio"
+                  />
+                  <label for={id}>
+                    {dataTypeName}
+                  </label>
+                </li>
+              );
+            })}
+          </ul>
         </fieldset>
       )}
 
