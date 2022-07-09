@@ -10,6 +10,8 @@
     "graphql": "https:/esm.sh/graphql@latest",
     "std/": "https://deno.land/std@0.147.0/",
     "marked": "https://esm.sh/marked@4.0.17",
+    "@twind/line-clamp": "https://esm.sh/@twind/line-clamp@0.1.1",
+    "@twind/typography": "https://esm.sh/@twind/typography@0.0.2",
     "isx/": "https://deno.land/x/isx@v1.0.0-beta.17/",
     "@/": "./",
     "atomic-ui@preact/": "https://deno.land/x/atomic_ui_react@1.0.0-beta.56/"

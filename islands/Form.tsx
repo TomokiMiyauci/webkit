@@ -134,17 +134,18 @@ function Field(
   return (
     <Fragment>
       <div class={tw`flex justify-between`}>
-        <label for={id} class={tw`cursor-auto text-2xl`}>
+        <label for={id} class={tw`cursor-auto text-2xl line-clamp-1`}>
           {name}
         </label>
       </div>
 
-      <p
+      <div
         dangerouslySetInnerHTML={{
           __html: description,
         }}
-        class={tw`mb-3 flex-1`}
-      />
+        class={tw`md-root`}
+      >
+      </div>
 
       {!isOnlyField && (
         <fieldset>
