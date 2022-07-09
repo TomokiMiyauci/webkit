@@ -49,6 +49,7 @@ enum FieldValue {
   Unknown
   Number
   Date
+  DateTime
 }
 
 enum Type {

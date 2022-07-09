@@ -133,6 +133,7 @@ const valueFieldValueMap: Record<FieldValueAsString, FieldValue> = {
   Unknown: FieldValue.Unknown,
   Number: FieldValue.Number,
   Date: FieldValue.Date,
+  DateTime: FieldValue.DateTime,
 };
 
 export class ClassClass extends NodeClass implements Class {
