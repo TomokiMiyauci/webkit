@@ -1,22 +1,14 @@
-import { ClassNodeResolvers, Sort } from "@/graphql_types.ts";
+import { ClassNodeResolvers } from "@/graphql_types.ts";
 import { Contexts } from "@/schemas/types.ts";
-import { sortBy } from "std/collections/sort_by.ts";
+import { orderBy as sortBy } from "@/utils/order_by.ts";
 
 export const ClassNode: ClassNodeResolvers<Contexts> = {
   properties: (parent, { orderBy }) => {
-    if (!orderBy || !orderBy.isPending) return parent.properties;
+    if (!orderBy) return parent.properties;
 
-    const isPendingOrderBy = orderBy.isPending;
+    const entries = orderBy.map(({ key, by }) => [key, by] as const);
+    const properties = sortBy(parent.properties, entries);
 
-    const properties = sortBy(
-      parent.properties,
-      ({ isPending }) => compareByBoolean(isPending, isPendingOrderBy),
-    );
     return properties;
   },
 };
-
-function compareByBoolean(value: boolean, sortBy: Sort): number {
-  const v = sortBy === "DESC" ? value : !value;
-  return Number(v);
-}

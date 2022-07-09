@@ -22,7 +22,7 @@ type ClassNode implements Node {
   types: [String!]!
   name: String!
   description: String!
-  properties(orderBy: NodeOrderByInput): [PropertyNode!]!
+  properties(orderBy: [NodeOrderByInput!]): [PropertyNode!]!
   isPending: Boolean!
 }
 
@@ -59,7 +59,8 @@ enum Type {
 }
 
 input NodeOrderByInput {
-  isPending: Sort
+  key: String!
+  by: Sort!
 }
 
 enum Sort {

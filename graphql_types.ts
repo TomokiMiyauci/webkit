@@ -26,7 +26,7 @@ export type ClassNode = Node & {
 
 
 export type ClassNodePropertiesArgs = {
-  orderBy?: InputMaybe<NodeOrderByInput>;
+  orderBy?: InputMaybe<Array<NodeOrderByInput>>;
 };
 
 export type DataTypeNode = Node & {
@@ -56,7 +56,8 @@ export type Node = {
 };
 
 export type NodeOrderByInput = {
-  isPending?: InputMaybe<Sort>;
+  by: Sort;
+  key: Scalars['String'];
 };
 
 export type PropertyNode = Node & {
