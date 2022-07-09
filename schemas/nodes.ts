@@ -18,6 +18,8 @@ import { marked } from "marked";
 import { wrap } from "@/deps.ts";
 import dataType from "@/data/data_type.json" assert { type: "json" };
 
+type FieldValueAsString = Exclude<keyof typeof FieldValue, "Url"> | "URL";
+
 export type Props = { rawNode: RawNode };
 
 type DataTypeType = typeof dataType;
@@ -118,15 +120,19 @@ export class DataType extends NodeClass implements DataTypeNode {
   }
 }
 
-function mapFieldValue(value: string) {
-  return valueFieldValueMap[value] ?? FieldValue.Unknown;
+function mapFieldValue(value: string): FieldValue {
+  if (value in valueFieldValueMap) {
+    return valueFieldValueMap[value as FieldValueAsString];
+  }
+  return FieldValue.Unknown;
 }
 
-const valueFieldValueMap: Record<string, FieldValue> = {
-  String: FieldValue.Text,
+const valueFieldValueMap: Record<FieldValueAsString, FieldValue> = {
+  Text: FieldValue.Text,
   URL: FieldValue.Url,
   Unknown: FieldValue.Unknown,
   Number: FieldValue.Number,
+  Date: FieldValue.Date,
 };
 
 export class ClassClass extends NodeClass implements Class {

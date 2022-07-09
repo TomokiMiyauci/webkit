@@ -97,6 +97,7 @@ const dataTypeInputMap: Record<
   Number: (props) => (
     <Input type="number" placeholder="Enter number" min={0} {...props} />
   ),
+  Date: (props) => <Input type="date" placeholder="Enter date format" {...props} />
 };
 
 type FieldProps =

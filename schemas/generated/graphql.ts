@@ -40,6 +40,7 @@ export type DataTypeNode = Node & {
 };
 
 export enum FieldValue {
+  Date = 'Date',
   Number = 'Number',
   Text = 'Text',
   Url = 'URL',

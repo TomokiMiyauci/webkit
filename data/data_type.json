@@ -9,7 +9,7 @@
     { "@id": "schema:Float", "value": { "@value": "Float" } },
     { "@id": "schema:Integer", "value": { "@value": "Integer" } },
     { "@id": "schema:Number", "value": { "@value": "Number" } },
-    { "@id": "schema:Text", "value": { "@value": "String" } },
+    { "@id": "schema:Text", "value": { "@value": "Text" } },
     { "@id": "schema:URL", "value": { "@value": "URL" } }
   ]
 }
