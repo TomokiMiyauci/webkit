@@ -11,12 +11,12 @@ import {
   collectSubClass,
   isPending,
   resolveLanguage,
-  searchNode,
 } from "@/utils/json_lds.ts";
 import { marked } from "marked";
 import { wrap } from "@/deps.ts";
 import dataType from "@/data/data_type.json" assert { type: "json" };
 import { RawNode, SchemaOrgTypes } from "@/types.ts";
+import { distinctBy } from "std/collections/distinct_by.ts";
 
 export type Props = { rawNode: RawNode };
 
@@ -148,7 +148,12 @@ export class ClassNode extends Node implements ClassNodeSpec {
       return collectProperties(node, schemaOrg);
     }).flat();
 
-    const properties = propertyNodes.map((node) => {
+    const cleanPropertyNodes = distinctBy(
+      propertyNodes,
+      (rawNode) => rawNode["@id"],
+    );
+
+    const properties = cleanPropertyNodes.map((node) => {
       const property = new PropertyNode({
         rawNode: node,
         schemaOrg: this.schemaOrg,
