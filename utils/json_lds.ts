@@ -1,15 +1,11 @@
-import schemaOrg from "@/data/schema.json" assert { type: "json" };
 import { filterTruthy, isString, wrap } from "../deps.ts";
 import { Node } from "@/graphql_types.ts";
 import { marked } from "https://esm.sh/marked";
 import { extension } from "./markdowns.ts";
 import { mapValues } from "std/collections/map_values.ts";
+import { RawNode, SchemaOrgTypes } from "@/types.ts";
 
 marked.use(extension);
-
-export type SchemaOrg = typeof schemaOrg;
-
-export type RawNode = SchemaOrg["@graph"][number];
 
 const reAbbreviatedFormat = /(.+):(.+)/;
 
@@ -83,42 +79,48 @@ export function filterType(value: string | string[]): boolean {
   return wrap(value).some((type) => type === "rdfs:Class");
 }
 
-export function collectSubClass(
+export function searchNode(
   id: string,
-  json: SchemaOrg,
-): SchemaOrg["@graph"] {
-  const run = (
-    ...[id, json]: Parameters<typeof collectSubClass>
-  ): ReturnType<typeof collectSubClass> => {
-    const graph = json["@graph"];
+  schemaOrg: SchemaOrgTypes,
+): RawNode | undefined {
+  const maybeNode = schemaOrg["@graph"].find((node) => {
+    return node["@id"] === id;
+  });
 
-    const maybeNode = graph.find((node) => {
-      return node["@id"] === id;
-    });
-
-    if (!maybeNode) return [];
-
-    const getChildren = () => {
-      const children = filterTruthy(wrap(maybeNode["rdfs:subClassOf"])).map(
-        (node) => {
-          return run(node["@id"], json);
-        },
-      );
-      return children.flat();
-    };
-
-    return [maybeNode, ...getChildren()];
-  };
-
-  return run(id, json);
+  return maybeNode;
 }
 
-export function collectProperties(id: string, schemaOrg: SchemaOrg) {
+export function collectSubClass(
+  rootNode: RawNode,
+  json: SchemaOrgTypes,
+): SchemaOrgTypes["@graph"] {
+  const seen = new Set<string>();
+
+  const run = (
+    ...[rawNode, json]: Parameters<typeof collectSubClass>
+  ): ReturnType<typeof collectSubClass> => {
+    const children = filterTruthy(wrap(rawNode["rdfs:subClassOf"])).map(
+      (childNode) => {
+        if (seen.has(childNode["@id"])) return [];
+
+        const rawNode = searchNode(childNode["@id"], json);
+        if (!rawNode) return [];
+        seen.add(rawNode["@id"]);
+        return [rawNode, ...run(rawNode, json)];
+      },
+    );
+    return children.flat();
+  };
+
+  return run(rootNode, json);
+}
+
+export function collectProperties(rawNode: RawNode, schemaOrg: SchemaOrgTypes) {
   const graph = schemaOrg["@graph"];
 
   const result = graph.filter((node) => {
     return filterTruthy(wrap(node["schema:domainIncludes"])).some((n) => {
-      return n["@id"] === id;
+      return n["@id"] === rawNode["@id"];
     });
   });
 
@@ -128,7 +130,7 @@ export function collectProperties(id: string, schemaOrg: SchemaOrg) {
 export function collectNodes<T extends keyof RawNode>(
   rawNode: RawNode,
   _: T,
-  graph: SchemaOrg["@graph"],
+  graph: SchemaOrgTypes["@graph"],
 ) {
   const ids = filterTruthy(wrap(rawNode["schema:rangeIncludes"]));
 

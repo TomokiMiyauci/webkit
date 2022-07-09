@@ -10,13 +10,13 @@ import {
   collectProperties,
   collectSubClass,
   isPending,
-  RawNode,
   resolveLanguage,
-  SchemaOrg,
+  searchNode,
 } from "@/utils/json_lds.ts";
 import { marked } from "marked";
 import { wrap } from "@/deps.ts";
 import dataType from "@/data/data_type.json" assert { type: "json" };
+import { RawNode, SchemaOrgTypes } from "@/types.ts";
 
 export type Props = { rawNode: RawNode };
 
@@ -59,10 +59,10 @@ export class Node implements NodeSpec {
 }
 
 export class PropertyNode extends Node implements PropertySpec {
-  protected schemaOrg: SchemaOrg;
+  protected schemaOrg: SchemaOrgTypes;
 
   constructor(
-    { rawNode, schemaOrg }: Readonly<Props & { schemaOrg: SchemaOrg }>,
+    { rawNode, schemaOrg }: Readonly<Props & { schemaOrg: SchemaOrgTypes }>,
   ) {
     super({ rawNode });
     this.schemaOrg = schemaOrg;
@@ -132,20 +132,20 @@ function mapField(value: string): FieldValue {
 }
 
 export class ClassNode extends Node implements ClassNodeSpec {
-  protected schemaOrg: SchemaOrg;
+  protected schemaOrg: SchemaOrgTypes;
   constructor(
-    { rawNode, schemaOrg }: Readonly<Props & { schemaOrg: SchemaOrg }>,
+    { rawNode, schemaOrg }: Readonly<Props & { schemaOrg: SchemaOrgTypes }>,
   ) {
     super({ rawNode });
     this.schemaOrg = schemaOrg;
   }
   get properties() {
-    const id = this.rawNode["@id"];
+    const rootNode = this.rawNode;
     const schemaOrg = this.schemaOrg;
-    const subClasses = collectSubClass(id, schemaOrg);
+    const subClasses = collectSubClass(rootNode, schemaOrg);
 
-    const propertyNodes = subClasses.map((node) => {
-      return collectProperties(node["@id"], schemaOrg);
+    const propertyNodes = [rootNode, ...subClasses].map((node) => {
+      return collectProperties(node, schemaOrg);
     }).flat();
 
     const properties = propertyNodes.map((node) => {
