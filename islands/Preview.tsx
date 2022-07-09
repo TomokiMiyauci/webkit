@@ -12,8 +12,8 @@ export type Props = {
 export default function Preview({ data }: Readonly<Props>): h.JSX.Element {
   const formatted = useMemo<string>(
     () => {
-      const result = jsonStringify({ ...filterValues(data, Boolean) }, null, 2)
-      return result[0] ? result[1] : ""
+      const result = jsonStringify({ ...filterValues(data, Boolean) }, null, 2);
+      return result[0] ? result[1] : "";
     },
     [data],
   );
@@ -23,7 +23,7 @@ export default function Preview({ data }: Readonly<Props>): h.JSX.Element {
   }, [formatted]);
 
   return (
-    <pre class={tw`relative`}>
+    <pre class={tw`relative overflow-scroll`}>
       <code>
         {formatted}
       </code>

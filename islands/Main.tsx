@@ -148,7 +148,7 @@ export default function Main(
         />
       </section>
 
-      <section>
+      <section class={tw`overflow-hidden`}>
         <h1 class={tw`text-3xl mb-4 py-2`}>Preview</h1>
         <Preview data={dataSet} />
       </section>
