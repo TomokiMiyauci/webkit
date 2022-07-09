@@ -39,14 +39,13 @@ export type DataTypeNode = Node & {
   types: Array<Scalars['String']>;
 };
 
-export enum FieldValue {
-  Date = 'Date',
-  DateTime = 'DateTime',
-  Number = 'Number',
-  Text = 'Text',
-  Url = 'URL',
-  Unknown = 'Unknown'
-}
+export type FieldValue =
+  | 'Date'
+  | 'DateTime'
+  | 'Number'
+  | 'Text'
+  | 'URL'
+  | 'Unknown';
 
 export type Node = {
   description: Scalars['String'];
@@ -94,15 +93,13 @@ export type SchemaOrgNodesArgs = {
   type?: InputMaybe<Type>;
 };
 
-export enum Sort {
-  Asc = 'ASC',
-  Desc = 'DESC'
-}
+export type Sort =
+  | 'ASC'
+  | 'DESC';
 
-export enum Type {
-  All = 'ALL',
-  Class = 'CLASS'
-}
+export type Type =
+  | 'ALL'
+  | 'CLASS';
 
 
 

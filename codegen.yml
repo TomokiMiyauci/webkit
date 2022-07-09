@@ -9,3 +9,5 @@ generates:
       - typescript
       - typescript-resolvers
       - typescript-operations
+    config:
+      enumsAsTypes: true
