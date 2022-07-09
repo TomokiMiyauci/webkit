@@ -1,6 +1,5 @@
-export type Result<D = unknown> = {
-  data: D;
+import { SchemaOrgTypes } from "@/types.ts";
 
-  // deno-lint-ignore no-explicit-any
-  errors?: any[];
+export type Contexts = {
+  schemaOrg: SchemaOrgTypes;
 };

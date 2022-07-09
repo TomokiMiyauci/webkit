@@ -3,7 +3,7 @@ import { h } from "preact";
 import { useCallback, useEffect, useMemo, useState } from "preact/hooks";
 import { tw } from "@twind";
 import Preview from "@/islands/Preview.tsx";
-import { ClassQuery, NodesAndClassQuery } from "@/schemas/generated/graphql.ts";
+import { ClassQuery, NodesAndClassQuery } from "@/graphql_types.ts";
 import { fetchGql, gql } from "@/utils/gqls.ts";
 import { filterKeys } from "std/collections/filter_keys.ts";
 import Form from "@/islands/Form.tsx";

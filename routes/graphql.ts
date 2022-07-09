@@ -1,15 +1,20 @@
 import { Handler } from "$fresh/server.ts";
-import rootValue from "@/schemas/mod.ts";
 import { dirname, fromFileUrl, join } from "std/path/mod.ts";
 import { contentType } from "std/media_types/mod.ts";
-import { buildSchema, graphql } from "graphql";
+import { graphql } from "graphql";
 import { resolveErrorMsg } from "@/utils/errors.ts";
 import { validateRequest } from "@/utils/graphql_http_validates.ts";
+import { resolvers } from "@/schemas/resolvers.ts";
+import { makeExecutableSchema } from "@graphql-tools/schema";
+import schemaOrg from "@/data/schema.json" assert { type: "json" };
 
 const fileUrl = fromFileUrl(import.meta.url);
 const filePath = join(dirname(fileUrl), "..", "schemas", "schema.graphql");
-const schemaData = await Deno.readTextFile(filePath);
-const schema = buildSchema(schemaData);
+const schemaStr = await Deno.readTextFile(filePath);
+const schema = makeExecutableSchema({
+  typeDefs: schemaStr,
+  resolvers,
+});
 
 export const handler: Handler = async (req) => {
   const result = await validateRequest(req);
@@ -25,9 +30,11 @@ export const handler: Handler = async (req) => {
     const result = await graphql({
       schema,
       source,
-      rootValue,
       variableValues,
       operationName,
+      contextValue: {
+        schemaOrg,
+      },
     });
     const res = new Response(JSON.stringify(result), {
       headers: {

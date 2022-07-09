@@ -14,7 +14,8 @@
     "@twind/typography": "https://esm.sh/@twind/typography@0.0.2",
     "isx/": "https://deno.land/x/isx@v1.0.0-beta.17/",
     "@/": "./",
-    "atomic-ui@preact/": "https://deno.land/x/atomic_ui_react@1.0.0-beta.56/"
+    "atomic-ui@preact/": "https://deno.land/x/atomic_ui_react@1.0.0-beta.56/",
+    "@graphql-tools/schema": "https://esm.sh/@graphql-tools/schema@8.5.0"
   },
   "scopes": {
     "https://deno.land/x/atomic_ui_react@1.0.0-beta.56/": {

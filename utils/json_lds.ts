@@ -1,6 +1,6 @@
 import schemaOrg from "@/data/schema.json" assert { type: "json" };
 import { filterTruthy, isString, wrap } from "../deps.ts";
-import { Node } from "@/schemas/generated/graphql.ts";
+import { Node } from "@/graphql_types.ts";
 import { marked } from "https://esm.sh/marked";
 import { extension } from "./markdowns.ts";
 import { mapValues } from "std/collections/map_values.ts";

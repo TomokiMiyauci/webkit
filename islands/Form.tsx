@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState } from "preact/hooks";
 import { apply, tw } from "@twind";
 import Input from "@/components/Input.tsx";
 import Required from "@/components/Required.tsx";
-import { ClassQuery, RequireFields } from "@/schemas/generated/graphql.ts";
+import { ClassQuery, RequireFields } from "@/graphql_types.ts";
 
 const card = apply
   `hover:bg-gray-100 hover:shadow p-3 rounded-md transition duration-300`;

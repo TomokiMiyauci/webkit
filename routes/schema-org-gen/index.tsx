@@ -7,7 +7,7 @@ import NavigationDrawer from "@/components/NavigationDrawer.tsx";
 import {
   NodesAndClassQuery,
   NodesAndClassQueryVariables,
-} from "@/schemas/generated/graphql.ts";
+} from "@/graphql_types.ts";
 import { tw } from "@twind";
 import { handler as graphqlHandler } from "@/routes/graphql.ts";
 import { gql, resolveResponse } from "@/utils/gqls.ts";
