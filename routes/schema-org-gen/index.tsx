@@ -22,7 +22,7 @@ const query = gql`query NodesAndClassNode($id: String!,$hasType: Boolean!) {
     classNode(id: $id) @include(if: $hasType) {
       name
       description
-      properties {
+      properties(orderBy: { isPending: DESC}) {
         name
         description
         schemas {

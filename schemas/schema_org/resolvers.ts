@@ -8,9 +8,6 @@ export const SchemaOrg: SchemaOrgResolvers<Contexts> = {
     const contexts = schemaOrg["@context"];
 
     const rawNode = graph.find((node) => {
-      if (node["@id"] === "schema:Thing") {
-        console.log(node["@id"] === "schema:Thing");
-      }
       return node["@id"] === id;
       // const $id = resolveAbbreviatedValue(node["@id"], absoluteIRI, contexts);
       // return $id === id;

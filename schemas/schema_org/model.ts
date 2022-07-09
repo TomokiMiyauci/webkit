@@ -1,6 +1,6 @@
 import { SchemaOrg as _SchemaOrg } from "@/graphql_types.ts";
 import { RawNode, SchemaOrgTypes } from "@/types.ts";
-import { ClassClass, PropertyClass } from "@/models/nodes.ts";
+import { ClassNode, PropertyNode } from "@/models/nodes.ts";
 import { filterType } from "@/utils/json_lds.ts";
 
 export default class SchemaOrg implements _SchemaOrg {
@@ -19,7 +19,7 @@ export default class SchemaOrg implements _SchemaOrg {
     const g = graph.filter((node) => filterType(node["@type"]));
 
     const nodes = g.map((rawNode) => {
-      return new PropertyClass({ rawNode, schemaOrg: this.#schemaOrg });
+      return new PropertyNode({ rawNode, schemaOrg: this.#schemaOrg });
     });
     return nodes;
   }
@@ -36,7 +36,7 @@ export default class SchemaOrg implements _SchemaOrg {
 
   get class() {
     if (!this.#rawNode) return undefined;
-    const Class = new ClassClass({
+    const Class = new ClassNode({
       rawNode: this.#rawNode,
       schemaOrg: this.#schemaOrg,
     });

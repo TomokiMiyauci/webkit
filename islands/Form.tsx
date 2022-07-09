@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState } from "preact/hooks";
 import { apply, tw } from "@twind";
 import Input from "@/components/Input.tsx";
 import Required from "@/components/Required.tsx";
-import { ClassQuery, RequireFields } from "@/graphql_types.ts";
+import { ClassNodeQuery, RequireFields } from "@/graphql_types.ts";
 
 const card = apply
   `hover:bg-gray-100 hover:shadow p-3 rounded-md transition duration-300`;
@@ -12,7 +12,7 @@ const card = apply
 export type Props = {
   options: { id: string; name: string }[];
 
-  classNode: ClassQuery["schemaOrg"]["class"];
+  classNode: ClassNodeQuery["schemaOrg"]["classNode"];
 
   onTypeChange: h.JSX.GenericEventHandler<HTMLSelectElement>;
 
@@ -112,9 +112,9 @@ const dataTypeInputMap: Record<
 
 type FieldProps =
   & RequireFields<
-    ClassQuery["schemaOrg"],
-    "class"
-  >["class"]["properties"][number]
+    ClassNodeQuery["schemaOrg"],
+    "classNode"
+  >["classNode"]["properties"][number]
   & {
     onInput: (value: string) => h.JSX.GenericEventHandler<HTMLInputElement>;
 
@@ -122,7 +122,7 @@ type FieldProps =
   };
 
 function Field(
-  { name, description, schemas, formData, onInput }: Readonly<
+  { name, description, schemas, formData, onInput, isPending }: Readonly<
     FieldProps
   >,
 ): h.JSX.Element {
@@ -148,6 +148,15 @@ function Field(
         <label for={id} class={tw`cursor-auto text-2xl line-clamp-1`}>
           {name}
         </label>
+
+        {isPending && (
+          <span
+            class={tw
+              `border border-purple-300 rounded-full inline-flex items-center px-2 bg-purple-200 text-purple-500`}
+          >
+            pending
+          </span>
+        )}
       </div>
 
       <div

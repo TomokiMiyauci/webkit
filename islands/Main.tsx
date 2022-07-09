@@ -19,7 +19,7 @@ const query = gql`query ClassNode($id: String!) {
     classNode(id: $id) {
       name
       description
-      properties {
+      properties(orderBy: {isPending: DESC}) {
         name
         description
         schemas {
