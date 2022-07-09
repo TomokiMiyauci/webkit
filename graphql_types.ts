@@ -14,18 +14,18 @@ export type Scalars = {
   Float: number;
 };
 
-export type Class = Node & {
-  __typename?: 'Class';
+export type ClassNode = Node & {
+  __typename?: 'ClassNode';
   description: Scalars['String'];
   id: Scalars['String'];
   isPending: Scalars['Boolean'];
   name: Scalars['String'];
-  properties: Array<Property>;
+  properties: Array<PropertyNode>;
   types: Array<Scalars['String']>;
 };
 
 
-export type ClassPropertiesArgs = {
+export type ClassNodePropertiesArgs = {
   orderBy?: InputMaybe<NodeOrderByInput>;
 };
 
@@ -60,8 +60,8 @@ export type NodeOrderByInput = {
   isPending?: InputMaybe<Sort>;
 };
 
-export type Property = Node & {
-  __typename?: 'Property';
+export type PropertyNode = Node & {
+  __typename?: 'PropertyNode';
   description: Scalars['String'];
   id: Scalars['String'];
   isPending: Scalars['Boolean'];
@@ -77,13 +77,13 @@ export type Query = {
 
 export type SchemaOrg = {
   __typename?: 'SchemaOrg';
-  class?: Maybe<Class>;
+  classNode?: Maybe<ClassNode>;
   nodeCount: Scalars['Int'];
-  nodes: Array<Property>;
+  nodes: Array<PropertyNode>;
 };
 
 
-export type SchemaOrgClassArgs = {
+export type SchemaOrgClassNodeArgs = {
   absoluteIRI?: InputMaybe<Scalars['Boolean']>;
   id: Scalars['String'];
 };
@@ -174,13 +174,13 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
-  Class: ResolverTypeWrapper<Class>;
+  ClassNode: ResolverTypeWrapper<ClassNode>;
   DataTypeNode: ResolverTypeWrapper<DataTypeNode>;
   FieldValue: FieldValue;
   Int: ResolverTypeWrapper<Scalars['Int']>;
-  Node: ResolversTypes['Class'] | ResolversTypes['DataTypeNode'] | ResolversTypes['Property'];
+  Node: ResolversTypes['ClassNode'] | ResolversTypes['DataTypeNode'] | ResolversTypes['PropertyNode'];
   NodeOrderByInput: NodeOrderByInput;
-  Property: ResolverTypeWrapper<Property>;
+  PropertyNode: ResolverTypeWrapper<PropertyNode>;
   Query: ResolverTypeWrapper<{}>;
   SchemaOrg: ResolverTypeWrapper<SchemaOrg>;
   Sort: Sort;
@@ -191,23 +191,23 @@ export type ResolversTypes = {
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
   Boolean: Scalars['Boolean'];
-  Class: Class;
+  ClassNode: ClassNode;
   DataTypeNode: DataTypeNode;
   Int: Scalars['Int'];
-  Node: ResolversParentTypes['Class'] | ResolversParentTypes['DataTypeNode'] | ResolversParentTypes['Property'];
+  Node: ResolversParentTypes['ClassNode'] | ResolversParentTypes['DataTypeNode'] | ResolversParentTypes['PropertyNode'];
   NodeOrderByInput: NodeOrderByInput;
-  Property: Property;
+  PropertyNode: PropertyNode;
   Query: {};
   SchemaOrg: SchemaOrg;
   String: Scalars['String'];
 };
 
-export type ClassResolvers<ContextType = any, ParentType extends ResolversParentTypes['Class'] = ResolversParentTypes['Class']> = {
+export type ClassNodeResolvers<ContextType = any, ParentType extends ResolversParentTypes['ClassNode'] = ResolversParentTypes['ClassNode']> = {
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   isPending?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  properties?: Resolver<Array<ResolversTypes['Property']>, ParentType, ContextType, Partial<ClassPropertiesArgs>>;
+  properties?: Resolver<Array<ResolversTypes['PropertyNode']>, ParentType, ContextType, Partial<ClassNodePropertiesArgs>>;
   types?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -223,7 +223,7 @@ export type DataTypeNodeResolvers<ContextType = any, ParentType extends Resolver
 };
 
 export type NodeResolvers<ContextType = any, ParentType extends ResolversParentTypes['Node'] = ResolversParentTypes['Node']> = {
-  __resolveType: TypeResolveFn<'Class' | 'DataTypeNode' | 'Property', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'ClassNode' | 'DataTypeNode' | 'PropertyNode', ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   isPending?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -231,7 +231,7 @@ export type NodeResolvers<ContextType = any, ParentType extends ResolversParentT
   types?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
 };
 
-export type PropertyResolvers<ContextType = any, ParentType extends ResolversParentTypes['Property'] = ResolversParentTypes['Property']> = {
+export type PropertyNodeResolvers<ContextType = any, ParentType extends ResolversParentTypes['PropertyNode'] = ResolversParentTypes['PropertyNode']> = {
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   isPending?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -246,33 +246,33 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
 };
 
 export type SchemaOrgResolvers<ContextType = any, ParentType extends ResolversParentTypes['SchemaOrg'] = ResolversParentTypes['SchemaOrg']> = {
-  class?: Resolver<Maybe<ResolversTypes['Class']>, ParentType, ContextType, RequireFields<SchemaOrgClassArgs, 'absoluteIRI' | 'id'>>;
+  classNode?: Resolver<Maybe<ResolversTypes['ClassNode']>, ParentType, ContextType, RequireFields<SchemaOrgClassNodeArgs, 'absoluteIRI' | 'id'>>;
   nodeCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  nodes?: Resolver<Array<ResolversTypes['Property']>, ParentType, ContextType, RequireFields<SchemaOrgNodesArgs, 'absoluteIRI' | 'type'>>;
+  nodes?: Resolver<Array<ResolversTypes['PropertyNode']>, ParentType, ContextType, RequireFields<SchemaOrgNodesArgs, 'absoluteIRI' | 'type'>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type Resolvers<ContextType = any> = {
-  Class?: ClassResolvers<ContextType>;
+  ClassNode?: ClassNodeResolvers<ContextType>;
   DataTypeNode?: DataTypeNodeResolvers<ContextType>;
   Node?: NodeResolvers<ContextType>;
-  Property?: PropertyResolvers<ContextType>;
+  PropertyNode?: PropertyNodeResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   SchemaOrg?: SchemaOrgResolvers<ContextType>;
 };
 
 
-export type ClassQueryVariables = Exact<{
+export type ClassNodeQueryVariables = Exact<{
   id: Scalars['String'];
 }>;
 
 
-export type ClassQuery = { __typename?: 'Query', schemaOrg: { __typename?: 'SchemaOrg', class?: { __typename?: 'Class', name: string, description: string, properties: Array<{ __typename?: 'Property', name: string, description: string, isPending: boolean, schemas: Array<{ __typename?: 'DataTypeNode', name: string, field: FieldValue }> }> } | null } };
+export type ClassNodeQuery = { __typename?: 'Query', schemaOrg: { __typename?: 'SchemaOrg', classNode?: { __typename?: 'ClassNode', name: string, description: string, properties: Array<{ __typename?: 'PropertyNode', name: string, description: string, isPending: boolean, schemas: Array<{ __typename?: 'DataTypeNode', name: string, field: FieldValue }> }> } | null } };
 
-export type NodesAndClassQueryVariables = Exact<{
+export type NodesAndClassNodeQueryVariables = Exact<{
   id: Scalars['String'];
   hasType: Scalars['Boolean'];
 }>;
 
 
-export type NodesAndClassQuery = { __typename?: 'Query', schemaOrg: { __typename?: 'SchemaOrg', nodes: Array<{ __typename?: 'Property', id: string, name: string }>, class?: { __typename?: 'Class', name: string, description: string, properties: Array<{ __typename?: 'Property', name: string, description: string, isPending: boolean, schemas: Array<{ __typename?: 'DataTypeNode', name: string, field: FieldValue }> }> } | null } };
+export type NodesAndClassNodeQuery = { __typename?: 'Query', schemaOrg: { __typename?: 'SchemaOrg', nodes: Array<{ __typename?: 'PropertyNode', id: string, name: string }>, classNode?: { __typename?: 'ClassNode', name: string, description: string, properties: Array<{ __typename?: 'PropertyNode', name: string, description: string, isPending: boolean, schemas: Array<{ __typename?: 'DataTypeNode', name: string, field: FieldValue }> }> } | null } };

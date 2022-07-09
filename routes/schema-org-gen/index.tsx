@@ -5,21 +5,21 @@ import Header from "@/components/Header.tsx";
 import Main from "@/islands/Main.tsx";
 import NavigationDrawer from "@/components/NavigationDrawer.tsx";
 import {
-  NodesAndClassQuery,
-  NodesAndClassQueryVariables,
+  NodesAndClassNodeQuery,
+  NodesAndClassNodeQueryVariables,
 } from "@/graphql_types.ts";
 import { tw } from "@twind";
 import { handler as graphqlHandler } from "@/routes/graphql.ts";
 import { gql, resolveResponse } from "@/utils/gqls.ts";
 import { resolveErrorMsg } from "@/utils/errors.ts";
 
-const query = gql`query NodesAndClass($id: String!,$hasType: Boolean!) {
+const query = gql`query NodesAndClassNode($id: String!,$hasType: Boolean!) {
   schemaOrg {
     nodes(type: CLASS) {
       id
       name
     }
-    class(id: $id) @include(if: $hasType) {
+    classNode(id: $id) @include(if: $hasType) {
       name
       description
       properties {
@@ -35,7 +35,7 @@ const query = gql`query NodesAndClass($id: String!,$hasType: Boolean!) {
   }
 }`;
 
-export const handler: Handlers<NodesAndClassQuery> = {
+export const handler: Handlers<NodesAndClassNodeQuery> = {
   async GET(req, ctx) {
     try {
       const url = new URL(req.url);
@@ -45,7 +45,7 @@ export const handler: Handlers<NodesAndClassQuery> = {
       const graphqlUrl = new URL("/graphql", url);
       graphqlUrl.searchParams.set("query", query);
 
-      const variables: NodesAndClassQueryVariables = {
+      const variables: NodesAndClassNodeQueryVariables = {
         hasType: has$Type,
         id: $type ?? "",
       };
@@ -54,7 +54,7 @@ export const handler: Handlers<NodesAndClassQuery> = {
 
       const request = new Request(graphqlUrl, req.clone());
       const res = await graphqlHandler(request, ctx);
-      const data = await resolveResponse<NodesAndClassQuery>(res);
+      const data = await resolveResponse<NodesAndClassNodeQuery>(res);
 
       return ctx.render(data);
     } catch (e) {
@@ -68,7 +68,7 @@ export const handler: Handlers<NodesAndClassQuery> = {
 };
 
 export default function Home(
-  { data, url }: Readonly<PageProps<NodesAndClassQuery>>,
+  { data, url }: Readonly<PageProps<NodesAndClassNodeQuery>>,
 ): h.JSX.Element {
   return (
     <div

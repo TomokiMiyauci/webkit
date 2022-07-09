@@ -2,9 +2,10 @@ type Query {
   schemaOrg: SchemaOrg!
 }
 
+# Schema.org defined node
 type SchemaOrg {
-  nodes(type: Type = ALL, absoluteIRI: Boolean = false): [Property!]!
-  class(id: String!, absoluteIRI: Boolean = false): Class
+  nodes(type: Type = ALL, absoluteIRI: Boolean = false): [PropertyNode!]!
+  classNode(id: String!, absoluteIRI: Boolean = false): ClassNode
   nodeCount: Int!
 }
 
@@ -16,16 +17,16 @@ interface Node {
   isPending: Boolean!
 }
 
-type Class implements Node {
+type ClassNode implements Node {
   id: String!
   types: [String!]!
   name: String!
   description: String!
-  properties(orderBy: NodeOrderByInput): [Property!]!
+  properties(orderBy: NodeOrderByInput): [PropertyNode!]!
   isPending: Boolean!
 }
 
-type Property implements Node {
+type PropertyNode implements Node {
   id: String!
   types: [String!]!
   name: String!

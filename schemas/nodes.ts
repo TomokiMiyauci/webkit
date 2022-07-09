@@ -1,9 +1,9 @@
 import {
-  Class,
-  DataTypeNode,
+  ClassNode as ClassNodeSpec,
+  DataTypeNode as DataTypeSpec,
   FieldValue,
-  Node,
-  Property,
+  Node as NodeSpec,
+  PropertyNode as PropertySpec,
 } from "@/graphql_types.ts";
 import {
   collectNodes,
@@ -24,7 +24,7 @@ export type Props = { rawNode: RawNode };
 
 type DataTypeType = typeof dataType;
 
-export class NodeClass implements Node {
+export class Node implements NodeSpec {
   protected rawNode: RawNode;
 
   constructor({ rawNode }: Readonly<Props>) {
@@ -60,7 +60,7 @@ export class NodeClass implements Node {
   }
 }
 
-export class PropertyClass extends NodeClass implements Property {
+export class PropertyNode extends Node implements PropertySpec {
   protected schemaOrg: SchemaOrg;
 
   constructor(
@@ -77,7 +77,7 @@ export class PropertyClass extends NodeClass implements Property {
     );
 
     const schemas = subClasses.map((rawNode) => {
-      const dataTypeNode = new DataType({ rawNode, dataType });
+      const dataTypeNode = new DataTypeNode({ rawNode, dataType });
       const { name, id, types, description, field, isPending } = dataTypeNode;
 
       return { name, id, types, description, field, isPending };
@@ -87,7 +87,7 @@ export class PropertyClass extends NodeClass implements Property {
   }
 }
 
-export class DataType extends NodeClass implements DataTypeNode {
+export class DataTypeNode extends Node implements DataTypeSpec {
   protected dataType: DataTypeType;
 
   protected dataTypeNode: { "@id": string; value: string } | undefined;
@@ -136,7 +136,7 @@ const valueFieldValueMap: Record<FieldValueAsString, FieldValue> = {
   DateTime: FieldValue.DateTime,
 };
 
-export class ClassClass extends NodeClass implements Class {
+export class ClassNode extends Node implements ClassNodeSpec {
   protected schemaOrg: SchemaOrg;
   constructor(
     { rawNode, schemaOrg }: Readonly<Props & { schemaOrg: SchemaOrg }>,
@@ -154,7 +154,7 @@ export class ClassClass extends NodeClass implements Class {
     }).flat();
 
     const properties = propertyNodes.map((node) => {
-      const property = new PropertyClass({
+      const property = new PropertyNode({
         rawNode: node,
         schemaOrg: this.schemaOrg,
       });

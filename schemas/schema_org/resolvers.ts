@@ -3,7 +3,7 @@ import { Contexts } from "@/schemas/types.ts";
 import SchemaOrgClass from "@/schemas/schema_org/model.ts";
 
 export const SchemaOrg: SchemaOrgResolvers<Contexts> = {
-  class: (_, { id, absoluteIRI }, { schemaOrg }) => {
+  classNode: (_, { id, absoluteIRI }, { schemaOrg }) => {
     const graph = schemaOrg["@graph"];
     const contexts = schemaOrg["@context"];
 

@@ -3,20 +3,20 @@ import { h } from "preact";
 import { useCallback, useEffect, useMemo, useState } from "preact/hooks";
 import { tw } from "@twind";
 import Preview from "@/islands/Preview.tsx";
-import { ClassQuery, NodesAndClassQuery } from "@/graphql_types.ts";
+import { ClassNodeQuery, NodesAndClassNodeQuery } from "@/graphql_types.ts";
 import { fetchGql, gql } from "@/utils/gqls.ts";
 import { filterKeys } from "std/collections/filter_keys.ts";
 import Form from "@/islands/Form.tsx";
 import useIsFirstMount from "atomic-ui@preact/hooks/use_is_first_mount.ts";
 
 export type Props =
-  & NodesAndClassQuery
+  & NodesAndClassNodeQuery
   & { url: string }
   & h.JSX.IntrinsicElements["main"];
 
-const query = gql`query Class($id: String!) {
+const query = gql`query ClassNode($id: String!) {
   schemaOrg {
-    class(id: $id) {
+    classNode(id: $id) {
       name
       description
       properties {
@@ -38,7 +38,8 @@ const base = {
 };
 
 export default function Main(
-  { schemaOrg: { nodes, class: classData }, url, ...props }: Readonly<Props>,
+  { schemaOrg: { nodes, classNode: initialClassNode }, url, ...props }:
+    Readonly<Props>,
 ) {
   const _url = useMemo<URL>(() => new URL(url), [url]);
 
@@ -57,7 +58,11 @@ export default function Main(
 
   const [invalidNames, setInvalidNames] = useState<string[]>([]);
 
-  const [cls, setClass] = useState<ClassQuery["schemaOrg"]["class"]>(classData);
+  const [classNode, setClassNode] = useState<
+    ClassNodeQuery["schemaOrg"]["classNode"]
+  >(
+    initialClassNode,
+  );
 
   const [type, setType] = useState<string>(() => {
     const type = _url.searchParams.get("@type");
@@ -119,13 +124,13 @@ export default function Main(
     if (!type || isFirstMount) return;
 
     const url = new URL("/graphql", location.href);
-    fetchGql<ClassQuery>({
+    fetchGql<ClassNodeQuery>({
       endpoint: url,
       query,
     }, {
       variables: { id: type },
     }).then(({ schemaOrg }) => {
-      setClass(schemaOrg.class);
+      setClassNode(schemaOrg.classNode);
     }).catch((e) => {
       console.log(e);
     });
@@ -143,7 +148,7 @@ export default function Main(
           }}
           formData={data}
           options={nodes}
-          classNode={cls}
+          classNode={classNode}
           onInput={handleInput}
         />
       </section>
