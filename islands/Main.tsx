@@ -13,7 +13,7 @@ export type Props =
   & {
     initialData: {
       type?: string | null;
-      properties?: Record<string, string>;
+      formData: Record<string, string>;
     } & NodesAndClassNodeQuery["schemaOrg"];
   }
   & h.JSX.IntrinsicElements["main"];
@@ -60,7 +60,7 @@ export default function Main(
 
   const [type, setType] = useState<string>(initialData.type ?? "");
   const [properties, setProperties] = useState<Record<string, string>>(
-    initialData.properties ?? {},
+    initialData.formData ?? {},
   );
   const [invalidNames, setInvalidNames] = useState<string[]>([]);
 
@@ -77,7 +77,9 @@ export default function Main(
     () =>
       filterKeys(
         data,
-        (key) => !invalidNames.includes(key) && propertyNames.includes(key),
+        (key) =>
+          !invalidNames.includes(key) &&
+          [...propertyNames, "@type"].includes(key),
       ),
     [data, invalidNames, propertyNames],
   );
@@ -101,24 +103,23 @@ export default function Main(
       }
     }, []);
 
-  // useEffect(() => {
-  //   const entries = Object.entries(data);
-  //   if (!entries.length) return;
+  useEffect(() => {
+    const entries = Object.entries(dataWithoutInvalidField);
+    if (!entries.length) return;
 
-  //   const url = new URL(location.href);
+    const url = new URL(location.href);
 
-  //   entries.forEach(([key, value]) => {
-  //     url.searchParams.set(key, value);
-  //   });
+    entries.forEach(([key, value]) => {
+      url.searchParams.set(key, value);
+    });
 
-  //   window.history.replaceState(null, "", url);
-  // }, [data]);
+    window.history.replaceState(null, "", url);
+  }, [dataWithoutInvalidField]);
 
   const dataSet = useMemo<Record<string, string>>(
-    () => ({ ...base, "@type": type, ...dataWithoutInvalidField }),
+    () => ({ ...base, ...dataWithoutInvalidField }),
     [
       base,
-      type,
       dataWithoutInvalidField,
     ],
   );

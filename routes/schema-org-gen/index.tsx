@@ -71,9 +71,16 @@ export const handler: Handlers<NodesAndClassNodeQuery> = {
 export default function Home(
   { data, url }: Readonly<PageProps<NodesAndClassNodeQuery>>,
 ): h.JSX.Element {
-  const type = useMemo<string | null>(() => url.searchParams.get("@type"), [
-    url,
-  ]);
+  const type = url.searchParams.get("@type");
+
+  const formData = useMemo<Record<string, string>>(() => {
+    const record: Record<string, string> = {};
+    url.searchParams.forEach((value, key) => {
+      record[key] = value;
+    });
+
+    return record;
+  }, [url]);
 
   return (
     <div
@@ -95,6 +102,7 @@ export default function Home(
           `md:container mx-auto md:row-span-2 md:col-span-2 grid md:grid-cols-1 md:grid-cols-2 gap-8 overflow-y-auto p-2 md:p-0 grid-rows-1-auto`}
         initialData={{
           ...data.schemaOrg,
+          formData,
           type,
         }}
       />
