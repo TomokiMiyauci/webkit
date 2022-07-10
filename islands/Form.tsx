@@ -65,7 +65,7 @@ export default function Form(
         </li>
 
         {classNode?.properties.map((fieldData) => (
-          <li class={tw(card)}>
+          <li key={fieldData.name} class={tw(card)}>
             <Field {...fieldData} onInput={onInput} formData={formData} />
           </li>
         ))}
@@ -178,7 +178,7 @@ function Field(
                 [name, dataTypeName],
               );
               return (
-                <li class={tw`inline space-x-1`}>
+                <li key={id} class={tw`inline space-x-1`}>
                   <input
                     id={id}
                     value={field}
@@ -199,7 +199,7 @@ function Field(
       {dataType && makeInput(dataType)({
         onInput: onInput(name),
         id,
-        value: formData[name],
+        value: formData[name] ?? "",
       })}
     </Fragment>
   );

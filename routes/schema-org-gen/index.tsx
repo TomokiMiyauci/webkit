@@ -1,5 +1,6 @@
 /** @jsx h */
 import { h } from "preact";
+import { useMemo } from "preact/hooks";
 import { Handlers, PageProps } from "$fresh/server.ts";
 import Header from "@/components/Header.tsx";
 import Main from "@/islands/Main.tsx";
@@ -70,6 +71,10 @@ export const handler: Handlers<NodesAndClassNodeQuery> = {
 export default function Home(
   { data, url }: Readonly<PageProps<NodesAndClassNodeQuery>>,
 ): h.JSX.Element {
+  const type = useMemo<string | null>(() => url.searchParams.get("@type"), [
+    url,
+  ]);
+
   return (
     <div
       class={tw
@@ -86,12 +91,13 @@ export default function Home(
       />
 
       <Main
-        url={url.toString()}
         class={tw
           `md:container mx-auto md:row-span-2 md:col-span-2 grid md:grid-cols-1 md:grid-cols-2 gap-8 overflow-y-auto p-2 md:p-0 grid-rows-1-auto`}
-        schemaOrg={data.schemaOrg}
+        initialData={{
+          ...data.schemaOrg,
+          type,
+        }}
       />
-      {/* <Footer class={tw`container mx-auto mt-20`} /> */}
     </div>
   );
 }

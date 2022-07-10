@@ -10,8 +10,12 @@ import Form from "@/islands/Form.tsx";
 import useIsFirstMount from "atomic-ui@preact/hooks/use_is_first_mount.ts";
 
 export type Props =
-  & NodesAndClassNodeQuery
-  & { url: string }
+  & {
+    initialData: {
+      type?: string | null;
+      properties?: Record<string, string>;
+    } & NodesAndClassNodeQuery["schemaOrg"];
+  }
   & h.JSX.IntrinsicElements["main"];
 
 const query = gql`query ClassNode($id: String!) {
@@ -38,45 +42,44 @@ const base = {
 };
 
 export default function Main(
-  { schemaOrg: { nodes, classNode: initialClassNode }, url, ...props }:
-    Readonly<Props>,
+  {
+    initialData,
+    ...props
+  }: Readonly<Props>,
 ) {
-  const _url = useMemo<URL>(() => new URL(url), [url]);
-
   const isFirstMount = useIsFirstMount();
-
-  const [properties, setProperties] = useState<Record<string, string>>(() => {
-    const record: Record<string, string> = {};
-    _url.searchParams.forEach((value, key) => {
-      if (key !== "@type") {
-        record[key] = value;
-      }
-    });
-
-    return record;
-  });
-
-  const [invalidNames, setInvalidNames] = useState<string[]>([]);
-
   const [classNode, setClassNode] = useState<
     ClassNodeQuery["schemaOrg"]["classNode"]
   >(
-    initialClassNode,
+    initialData.classNode,
   );
 
-  const [type, setType] = useState<string>(() => {
-    const type = _url.searchParams.get("@type");
+  useEffect(() => {
+    if (!classNode) return;
+  }, [classNode]);
 
-    return type ?? "";
-  });
+  const [type, setType] = useState<string>(initialData.type ?? "");
+  const [properties, setProperties] = useState<Record<string, string>>(
+    initialData.properties ?? {},
+  );
+  const [invalidNames, setInvalidNames] = useState<string[]>([]);
+
   const data = useMemo<Record<string, string>>(
     () => ({ ...properties, ["@type"]: type }),
     [properties, type],
   );
 
+  const propertyNames = useMemo<string[]>(() => {
+    return classNode?.properties.map(({ name }) => name) ?? [];
+  }, [classNode]);
+
   const dataWithoutInvalidField = useMemo<Record<string, string>>(
-    () => filterKeys(data, (key) => !invalidNames.includes(key)),
-    [data, invalidNames],
+    () =>
+      filterKeys(
+        data,
+        (key) => !invalidNames.includes(key) && propertyNames.includes(key),
+      ),
+    [data, invalidNames, propertyNames],
   );
   const handleInput = useCallback<
     (value: string) => h.JSX.GenericEventHandler<HTMLInputElement>
@@ -98,18 +101,18 @@ export default function Main(
       }
     }, []);
 
-  useEffect(() => {
-    const entries = Object.entries(data);
-    if (!entries.length) return;
+  // useEffect(() => {
+  //   const entries = Object.entries(data);
+  //   if (!entries.length) return;
 
-    const url = new URL(location.href);
+  //   const url = new URL(location.href);
 
-    entries.forEach(([key, value]) => {
-      url.searchParams.set(key, value);
-    });
+  //   entries.forEach(([key, value]) => {
+  //     url.searchParams.set(key, value);
+  //   });
 
-    window.history.replaceState(null, "", url);
-  }, [data]);
+  //   window.history.replaceState(null, "", url);
+  // }, [data]);
 
   const dataSet = useMemo<Record<string, string>>(
     () => ({ ...base, "@type": type, ...dataWithoutInvalidField }),
@@ -122,6 +125,7 @@ export default function Main(
 
   useEffect(() => {
     if (!type || isFirstMount) return;
+    const abortController = new AbortController();
 
     const url = new URL("/graphql", location.href);
     fetchGql<ClassNodeQuery>({
@@ -129,12 +133,20 @@ export default function Main(
       query,
     }, {
       variables: { id: type },
+    }, {
+      signal: abortController.signal,
     }).then(({ schemaOrg }) => {
       setClassNode(schemaOrg.classNode);
     }).catch((e) => {
-      console.log(e);
+      if (!(e instanceof DOMException)) {
+        console.log(e);
+      }
     });
-  }, [type]);
+
+    return () => {
+      abortController.abort();
+    };
+  }, [type, isFirstMount]);
 
   return (
     <main {...props}>
@@ -147,7 +159,7 @@ export default function Main(
             setType(ev.currentTarget.value);
           }}
           formData={data}
-          options={nodes}
+          options={initialData.nodes}
           classNode={classNode}
           onInput={handleInput}
         />
