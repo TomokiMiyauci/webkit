@@ -16,7 +16,7 @@
     "@/": "./",
     "atomic-ui@preact/": "https://deno.land/x/atomic_ui_react@1.0.0-beta.56/",
     "@graphql-tools/schema": "https://esm.sh/@graphql-tools/schema@8.5.0",
-    "graphql_http/": "https://deno.land/x/graphql_http@1.0.0-beta.1/",
+    "graphql_http/": "https://deno.land/x/graphql_http@1.0.0-beta.2/",
     "pure_json/": "https://deno.land/x/pure_json@1.0.0-beta.1/"
   },
   "scopes": {
