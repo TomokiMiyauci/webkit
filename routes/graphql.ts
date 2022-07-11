@@ -1,12 +1,9 @@
 import { Handler } from "$fresh/server.ts";
 import { dirname, fromFileUrl, join } from "std/path/mod.ts";
-import { contentType } from "std/media_types/mod.ts";
-import { graphql } from "graphql";
-import { resolveErrorMsg } from "@/utils/errors.ts";
-import { validateRequest } from "@/utils/graphql_http_validates.ts";
 import { resolvers } from "@/schemas/resolvers.ts";
 import { makeExecutableSchema } from "@graphql-tools/schema";
 import schemaOrg from "@/data/schema.json" assert { type: "json" };
+import { graphqlHttp } from "graphql_http/mod.ts";
 
 const fileUrl = fromFileUrl(import.meta.url);
 const filePath = join(dirname(fileUrl), "..", "schemas", "schema.graphql");
@@ -16,38 +13,26 @@ const schema = makeExecutableSchema({
   resolvers,
 });
 
-export const handler: Handler = async (req) => {
-  const result = await validateRequest(req);
-  if (!result[0]) {
-    return new Response(result[1].message, {
-      status: 400,
-    });
-  }
+const GraphQLHTTP = graphqlHttp({
+  schema,
+  contextValue: {
+    schemaOrg,
+  },
+  response: (res) => {
+    if (res.ok) {
+      const headers = new Headers(res.headers);
+      headers.set("cache-control", "max-age=360");
 
-  const { query: source, variableValues, operationName } = result[1];
+      const customResponse = new Response(res.body, {
+        ...res,
+        headers,
+      });
+      return customResponse;
+    }
 
-  try {
-    const result = await graphql({
-      schema,
-      source,
-      variableValues,
-      operationName,
-      contextValue: {
-        schemaOrg,
-      },
-    });
-    const res = new Response(JSON.stringify(result), {
-      headers: {
-        "content-type": contentType(".json"),
-        "cache-control": "max-age=60",
-      },
-    });
     return res;
-  } catch (e) {
-    const msg = resolveErrorMsg(e);
-    const res = new Response(msg, {
-      status: 500,
-    });
-    return res;
-  }
-};
+  },
+  playground: true,
+});
+
+export const handler: Handler = GraphQLHTTP;

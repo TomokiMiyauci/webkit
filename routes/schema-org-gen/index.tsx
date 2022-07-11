@@ -53,7 +53,7 @@ export const handler: Handlers<NodesAndClassNodeQuery> = {
       const varStr = JSON.stringify(variables);
       graphqlUrl.searchParams.set("variables", varStr);
 
-      const request = new Request(graphqlUrl, req.clone());
+      const request = new Request(graphqlUrl);
       const res = await graphqlHandler(request, ctx);
       const data = await resolveResponse<NodesAndClassNodeQuery>(res);
 
