@@ -1,4 +1,4 @@
-import { json } from "@/utils/jsons.ts";
+import { json } from "pure_json/mod.ts";
 
 /** Compress GraphQL query. */
 export function gql([query]: TemplateStringsArray): string {
@@ -51,7 +51,7 @@ export async function fetchGql<R extends Record<string, unknown>>(
     body: method === "POST" ? JSON.stringify({ query, variables }) : undefined,
     headers: {
       "content-type": "application/json; charset=UTF-8",
-      "accept": 'application/json',
+      "accept": "application/json",
     },
     ...init,
   });

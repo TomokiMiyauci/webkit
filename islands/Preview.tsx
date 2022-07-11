@@ -3,7 +3,7 @@ import { h, JSX } from "preact";
 import { useCallback, useMemo } from "preact/hooks";
 import { tw } from "@twind";
 import { filterValues, jsonObject } from "../deps.ts";
-import { jsonStringify } from "@/utils/jsons.ts";
+import { stringify } from "pure_json/mod.ts";
 
 export type Props = {
   data: jsonObject;
@@ -12,8 +12,8 @@ export type Props = {
 export default function Preview({ data }: Readonly<Props>): h.JSX.Element {
   const formatted = useMemo<string>(
     () => {
-      const result = jsonStringify({ ...filterValues(data, Boolean) }, null, 2);
-      return result[0] ? result[1] : "";
+      const result = stringify({ ...filterValues(data, Boolean) }, null, 2);
+      return result[1] ? "" : result[0];
     },
     [data],
   );
