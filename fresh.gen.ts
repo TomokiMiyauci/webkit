@@ -2,20 +2,18 @@
 // This file SHOULD be checked into source version control.
 // This file is automatically updated during development when running `dev.ts`.
 
-import * as $0 from "./routes/__/index.tsx";
-import * as $1 from "./routes/graphql.ts";
-import * as $2 from "./routes/index.tsx";
-import * as $3 from "./routes/schema-org-gen/index.tsx";
+import * as $0 from "./routes/graphql.ts";
+import * as $1 from "./routes/index.tsx";
+import * as $2 from "./routes/schema-org-gen/index.tsx";
 import * as $$0 from "./islands/Form.tsx";
 import * as $$1 from "./islands/Main.tsx";
 import * as $$2 from "./islands/Preview.tsx";
 
 const manifest = {
   routes: {
-    "./routes/__/index.tsx": $0,
-    "./routes/graphql.ts": $1,
-    "./routes/index.tsx": $2,
-    "./routes/schema-org-gen/index.tsx": $3,
+    "./routes/graphql.ts": $0,
+    "./routes/index.tsx": $1,
+    "./routes/schema-org-gen/index.tsx": $2,
   },
   islands: {
     "./islands/Form.tsx": $$0,
